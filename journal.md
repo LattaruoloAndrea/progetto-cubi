@@ -1,2 +1,2 @@
 # Inizio progetto
-stanza dello spirito e del tempo
+Creazione della stanza dello spirito e del tempo
