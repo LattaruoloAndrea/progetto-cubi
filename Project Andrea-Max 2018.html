@@ -62,12 +62,10 @@
 		function Start() {
 			scene = new THREE.Scene();
 			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
 			renderer = new THREE.WebGLRenderer( {antialias: true} );
 			renderer.setSize( window.innerWidth, window.innerHeight );
 			renderer.setClearColor( 0xf0f0f0 );
 			document.body.appendChild( renderer.domElement );
-
 			camera.position.set(3,4,100);
 			camera.lookAt( new THREE.Vector3(0,0,0));
 
@@ -82,21 +80,41 @@
 			// Creazione Piano della Stanza dello Spirito e del Tempo
 			TerrenoStanza = new THREE.Object3D();
 			var altezzaPianiTerreno = 3;
-			var basamentoMassimo = 120;
-			var basamentoMinimo = 60;
-			costruzioneTerrenoStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMassimo, basamentoMinimo);
+			var basamentoMaxVerticale = 120;
+			var basamentoMinVerticale = 60;
+			var basamentoMaxOrizzontale = 200;
+			var basamentoMinOrizzontale = 60;
+			costruzionePiantaStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMaxVerticale,
+															basamentoMinVerticale, basamentoMaxOrizzontale, basamentoMinOrizzontale);
 
-			// Creazione clessidra
+			// Creazione clessidre
+			// Clessidra Sinistra
 			ClessidraSx = new THREE.Object3D();
 			var moltiplicatoreDim = 2;
 			var altezzaClessidra = moltiplicatoreDim * 20;
 			costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim);
-			ClessidraSx.position.set(basamentoMinimo - (basamentoMinimo/3),9,-(basamentoMassimo - (basamentoMassimo/4)));
+			ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+
+			// Clessidra Destra
 			ClessidraDx = new THREE.Object3D();
 			costruzioneClessidra(ClessidraDx, altezzaClessidra, moltiplicatoreDim);
-			ClessidraDx.position.set(-(basamentoMinimo - (basamentoMinimo/3)),9,-(basamentoMassimo - (basamentoMassimo/4)));
+			ClessidraDx.position.set(-(basamentoMaxOrizzontale/2 - 40), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+
+			// Creazione palloncini laterali
+			// Pallocino Sinistro
+			PalloncinoSx = new THREE.Object3D();
+			var moltiplicatoreDimP = 1;
+			var altezzaPalloncino = moltiplicatoreDimP * 21;
+			costruzionePalloncino(PalloncinoSx, altezzaPalloncino, moltiplicatoreDimP);
+			PalloncinoSx.position.set(basamentoMaxOrizzontale/2 - 20, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+
+			// Palloncino Destro
+			PalloncinoDx = new THREE.Object3D();
+			costruzionePalloncino(PalloncinoDx, altezzaPalloncino, moltiplicatoreDimP);
+			PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+
 			// Gestione scena-pivot
-			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx);
+			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx);
 			scene.add( StanzaSpiritoDelTempo );
 
 			stats = new Stats();
@@ -120,26 +138,43 @@
 			}
 		}
 
-		function costruzioneTerrenoStanza(obj, height, basamentoMax, basamentoMin){
+		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
 
 		// Piani TerrenoStanza
-		var plane1 = creaQuadrilatero(basamentoMin, height, basamentoMax, null, "textures/terrenoStanza.jpg");
-		var plane2 = creaQuadrilatero(basamentoMin - 10, height, basamentoMax - 10, null, "textures/terrenoStanza.jpg");
-		var plane3 = creaQuadrilatero(basamentoMin - 10, height, basamentoMax - 20, null, "textures/terrenoStanza.jpg");
-		var plane4 = creaQuadrilatero(basamentoMax, height, basamentoMin, null, "textures/terrenoStanza.jpg");
-		var plane5 = creaQuadrilatero(basamentoMax - 10, height, basamentoMin - 10, null, "textures/terrenoStanza.jpg");
-		var plane6 = creaQuadrilatero(basamentoMax - 20, height, basamentoMin - 20, null, "textures/terrenoStanza.jpg");
-
-		// Colocamento piani per formare TerrenoStanza
-		var distance = 30;
-		plane1.position.set(0,0,0);
-		plane2.position.set(0, height,-distance+10);
-		plane3.position.set(0,2*height,-distance+10);
-		plane4.position.set(0,0,-(basamentoMin + distance));
-		plane5.position.set(0, height,-(basamentoMin + distance));
-		plane6.position.set(0,2*height,-(basamentoMin + distance));
-		obj.add(plane1, plane2, plane3, plane4, plane5, plane6);
+		var piantaVerticale = creaPiantaVert(height, basamentoMaxV, basamentoMinV);
+		var piantaOrizzontale = creaPiantaOrizz(height, basamentoMaxO, basamentoMinO);
+		piantaOrizzontale.rotation.set(0,90*Math.PI/180,0);
+		piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
+		obj.add(piantaVerticale, piantaOrizzontale);
 	  }
+
+		function creaPiantaVert(h, bM, bm){
+
+			var pivotPianta = new THREE.Object3D();
+			var d = 10;
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza.jpg");
+			plane1.position.set(0,0,0);
+			plane2.position.set(0, h,-d);
+			plane3.position.set(0,2*h,-2*d);
+			pivotPianta.add(plane1, plane2, plane3);
+			return pivotPianta;
+		}
+
+		function creaPiantaOrizz(h, bM, bm){
+
+			var pivotPianta = new THREE.Object3D();
+			var d = 10;
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza.jpg");
+			plane1.position.set(0,0,0);
+			plane2.position.set(0, h,0);
+			plane3.position.set(0,2*h,0);
+			pivotPianta.add(plane1, plane2, plane3);
+			return pivotPianta;
+		}
 
 		function costruzioneClessidra(pivotClessidra, altezzaCl, mul){
 			//crea una clessidra
@@ -197,22 +232,70 @@
 			var metaVetro2 = creaQuadrilateroTrasparente(m*(l-2), altezzaVetri, m*(l-2),colorBase);
 			metaVetro1.position.set(0,m*2 + altezzaVetri,0);
 			metaVetro2.position.set(0,m*2 + 2*altezzaVetri,0);
-		// 	var lato1 = creaQuadrilateroTrasparente(dimensioneLato,height,spessore,colorBase);
-		// 	var lato2 = creaQuadrilateroTrasparente(dimensioneLato,height,spessore,colorBase);
-		// 	var lato3 = creaQuadrilateroTrasparente(dimensioneLato,height,spessore,colorBase);
-		// 	var lato4 = creaQuadrilateroTrasparente(dimensioneLato,height,spessore,colorBase);
-		//
-		// 	// Collocazione lati
-		// 	lato1.position.set(0,0,dimensioneLato/2);
-		//   lato4.position.set(0,0,-dimensioneLato/2);
-		// // // lati laterali
-		// 	lato2.position.set(height/2,0,0);
-		// 	lato2.rotation.set(0,90*Math.PI/180,0);
-		// 	lato3.position.set(-height/2,0,0);
-		// 	lato3.rotation.set(0,90*Math.PI/180,0);
-		//
 			pivot.add(metaVetro, metaVetro1, metaVetro2);
 			return pivot;
+		}
+
+		function costruzionePalloncino(pivotPalloncino, altezzaP, mul){
+
+				var latoSfera = 5;
+				var baseP = creaBasePalloncino(mul);
+				var tettoP = creaBasePalloncino(mul);
+				var astaP = creaAstaPalloncino(mul, altezzaP);
+				var sfera = creaSfera(mul, latoSfera);
+				tettoP.rotation.set(180*Math.PI/180,0,0);
+				tettoP.position.set(0,altezzaP,0);
+				astaP.position.set(0,altezzaP/2,0);
+				sfera.position.set(0,altezzaP + 1, 0);
+				pivotPalloncino.add(baseP, tettoP, astaP, sfera);
+		}
+
+		function creaBasePalloncino(m){
+
+			pivot = new THREE.Object3D();
+			var height = m*1;
+			var basamento = m*2;
+			var colorBase = 0xffd700;
+			var livBaseP1 = creaQuadrilatero(basamento,height,basamento,colorBase, "textures/OroClessidra.jpg");
+			var livBaseP2 = creaQuadrilatero(basamento - m*1,height, basamento - m*1,colorBase, "textures/OroClessidra.jpg");
+			livBaseP2.position.set(0,height,0);
+			pivot.add(livBaseP1, livBaseP2);
+			return pivot;
+		}
+
+		function creaAstaPalloncino(m, hp){
+			var height = hp - m*2;
+			var basamento = m*1;
+			var colorBase = 0xaaaaaa;
+			var astaP = creaQuadrilatero(basamento,height,basamento,colorBase);
+			return astaP;
+		}
+
+		function creaSfera(moltiplicatore, lato){
+			var Sphere = new THREE.Object3D();
+			var metaSfera1 = creaMetaSfera(moltiplicatore ,lato);
+			var metaSfera2 = creaMetaSfera(moltiplicatore ,lato);
+			metaSfera2.position.set(0,moltiplicatore*8,0);
+			metaSfera2.rotation.set(180*Math.PI/180,0,0);
+			Sphere.add(metaSfera1, metaSfera2);
+			return Sphere;
+		}
+
+		function creaMetaSfera(m, lato){
+			pivotPalla = new THREE.Object3D();
+			var height = m*1;
+			var colorBase = 0x0000ff;
+			var livBase1 = creaQuadrilatero(m*lato, height, m*lato,colorBase);
+			var livBase2 = creaQuadrilatero(m*lato + m*1,height, m*lato + m*1,colorBase);
+			var livBase3 = creaQuadrilatero(m*lato + m*2,height,m*lato + m*2,colorBase);
+			var livBase4 = creaQuadrilatero(m*lato + m*3,height,m*lato + m*3,colorBase);
+			var livBase5 = creaQuadrilatero(m*lato + m*4,height,m*lato + m*4,colorBase);
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			livBase4.position.set(0,3*height,0);
+			livBase5.position.set(0,4*height,0);
+			pivotPalla.add(livBase1,livBase2,livBase3,livBase4, livBase5);
+			return pivotPalla;
 		}
 
 		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
