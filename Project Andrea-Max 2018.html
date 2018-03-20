@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>Project 2018</title>
+		<title>Stanza dello Spirito e del Tempo</title>
 		<style>
 
 		body {
@@ -25,7 +25,7 @@
 
 		<script>
 
-		var scene, camera, renderer, controls, stats, cube1, cube2;
+		var scene, camera, renderer, controls, stats, terreno, StanzaSpiritoDelTempo, TerrenoStanza;
 
 		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 		function getHeightData(img,scale) {
@@ -68,16 +68,26 @@
 			renderer.setClearColor( 0xf0f0f0 );
 			document.body.appendChild( renderer.domElement );
 
-			camera.position.set(3,4,6);
+			camera.position.set(3,4,100);
 			camera.lookAt( new THREE.Vector3(0,0,0));
 
-			var geometry = new THREE.BoxGeometry(1,1,1);
-			var material = new THREE.MeshBasicMaterial( { color: 0xaaaaaa } );
-			cube1 = new THREE.Mesh( geometry, material );
-			cube2 = new THREE.Mesh( geometry, material );
+			// Costruzione terreno
+			var geometry = new THREE.PlaneGeometry(10000,10000);
+			var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
+			var terreno = new THREE.Mesh(geometry, material);
 
-			scene.add( cube1, cube2 );
-			cube2.position.set(5,0,0);
+			// Creazione Stanza dello Spirito e del Tempo
+			StanzaSpiritoDelTempo = new THREE.Object3D();
+			// Creazione Piano della Stanza dello Spirito e del Tempo
+			TerrenoStanza = new THREE.Object3D();
+			costruzioneTerrenoStanza(TerrenoStanza);
+			// Creazione alberi
+			Clessidra = new THREE.Object3D();
+			aggiungiClessidra(Clessidra);
+
+			// Gestione scena-pivot
+			StanzaSpiritoDelTempo.add(TerrenoStanza, Alberi);
+			scene.add( StanzaSpiritoDelTempo );
 
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
@@ -93,15 +103,56 @@
 			// terrain
 			var img = new Image();
 			img.onload = function () {
-
 				//get height data from img
 				var data = getHeightData(img,0.1);
-
 				// load img source
 				img.src = "textures/heightmap2.png";
 			}
+		}
 
+		function costruzioneTerrenoStanza(obj){
 
+		// Piani TerrenoStanza
+		var heigth = 3;
+		var plane1 = creaTerreni(50, heigth, 100, null, "textures/terrenoStanza.jpg");
+		var plane2 = creaTerreni(40, heigth, 90, null, "textures/terrenoStanza.jpg");
+		var plane3 = creaTerreni(30, heigth, 80, null, "textures/terrenoStanza.jpg");
+		var plane4 = creaTerreni(100, heigth, 50, null, "textures/terrenoStanza.jpg");
+		var plane5 = creaTerreni(90, heigth, 40, null, "textures/terrenoStanza.jpg");
+		var plane6 = creaTerreni(80, heigth, 30, null, "textures/terrenoStanza.jpg");
+
+		// Colocamento piani per formare TerrenoStanza
+		plane1.position.set(0,0,0);
+		plane2.position.set(0, heigth,0);
+		plane3.position.set(0,2*heigth,0);
+		plane4.position.set(0,0,-50);
+		plane5.position.set(0, heigth,-50);
+		plane6.position.set(0,2*heigth,-50);
+		obj.add(plane1, plane2, plane3, plane4, plane5, plane6);
+	  }
+
+		function aggiungiClessidra(pivotClessidra){
+			//
+		}
+
+		function creaBaseClessidra(){
+			var base = new THREE.Object3D();
+
+		}
+
+		function creaTerreni(larghezza, altezza, profondita, colore, image){
+			// Costruzione plane generico
+			var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
+			//
+			if(colore != null){
+			var planeMaterial = new THREE.MeshBasicMaterial( { color: colore } );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+		} else {
+			var texture = new THREE.TextureLoader().load( image );
+			var planeMaterial = new THREE.MeshBasicMaterial( { map: texture } );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+		}
+			return plane;
 		}
 
 		function Update() {
