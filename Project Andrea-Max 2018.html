@@ -27,7 +27,7 @@
 
 		<script>
 
-		var scene, camera, renderer, controls, stats;
+		var scene, camera, renderer, controls, stats, gokuBody;
 
 		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 		function getHeightData(img,scale) {
@@ -140,11 +140,12 @@
 
 			// Goku
 			aggiungiGoku();
-			var light = new THREE.DirectionalLight();
-
+			var amLight = new THREE.AmbientLight(0xfaffe3, 0.8);
+			var dLight = new THREE.DirectionalLight(0xffffff, 0.1);
+			//dLight.target = gokuBody;
 			// Gestione scena-pivot
 			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx);
-			scene.add( StanzaSpiritoDelTempo, light );
+			scene.add( StanzaSpiritoDelTempo, dLight, amLight);
 
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
@@ -405,13 +406,72 @@
 
 		function aggiungiGoku(){
 
-	    var loader = new THREE.OBJLoader();
+			var manager = new THREE.LoadingManager();
+	    var loader = new THREE.ImageLoader(manager);
 
-	    loader.load('textures/Goku/Goku.obj', function (object){
-				//object.scale(2,2,2);
-				object.position.set(0,8,0);
-	      scene.add(object);
+			// Texture shirt
+			var shirtTexture = new THREE.Texture();
+	    loader.load('textures/Goku/shirt.png', function (image){
+				shirtTexture.image = image;
+				shirtTexture.needsUpdate = true;
 	    });
+
+			// Texture hair
+			var hairTexture = new THREE.Texture();
+			loader.load('textures/Goku/hair.png', function (image){
+				hairTexture.image = image;
+				hairTexture.needsUpdate = true;
+			});
+
+			// Texture pants
+			var pantsTexture = new THREE.Texture();
+			loader.load('textures/Goku/pants.png', function (image){
+				pantsTexture.image = image;
+				pantsTexture.needsUpdate = true;
+			});
+
+			// Texture eyes
+			var eyesTexture = new THREE.Texture();
+			loader.load('textures/Goku/eyes.png', function (image){
+				eyesTexture.image = image;
+				eyesTexture.needsUpdate = true;
+			});
+
+			// Texture face
+			var faceTexture = new THREE.Texture();
+			loader.load('textures/Goku/face.png', function (image){
+				faceTexture.image = image;
+				faceTexture.needsUpdate = true;
+			});
+
+			var meshes = [];
+			var objLoader = new THREE.OBJLoader();
+
+			objLoader.load('textures/Goku/Goku.obj', function ( object ){
+				object.traverse( function (child) {
+					if( child instanceof THREE.Mesh )
+					{
+						meshes.push(child);
+					}
+				});
+
+				var Goku = new THREE.Object3D();
+				gokuPants = meshes[0];
+				gokuShirt = meshes[1];
+				gokuFace = meshes[2];
+				gokuEyes = meshes[3];
+				gokuHair = meshes[4];
+				Goku.add(gokuPants, gokuShirt, gokuFace, gokuEyes, gokuHair);
+				scene.add(Goku);
+				Goku.position.set(0,8,-50);
+				Goku.scale.set(1/2,1/2,1/2);
+
+				gokuPants.material = new THREE.MeshPhongMaterial({map: pantsTexture});
+				gokuShirt.material = new THREE.MeshPhongMaterial({map: shirtTexture});
+				gokuFace.material = new THREE.MeshPhongMaterial({map: faceTexture});
+				gokuEyes.material = new THREE.MeshPhongMaterial({map: eyesTexture});
+				gokuHair.material = new THREE.MeshPhongMaterial({map: hairTexture});
+			});
 	  }
 
 		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
