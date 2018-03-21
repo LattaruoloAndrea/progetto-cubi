@@ -16,16 +16,18 @@
 		}
 
 	</style>
-		<script src="lib/three.min.js"></script>
-		<script src="lib/stats.min.js"></script>
-		<script src="lib/Coordinates.js"></script>
-		<script src="lib/OrbitControls.js"></script>
+		<script src = "lib/three.min.js"></script>
+		<script src = "lib/stats.min.js"></script>
+		<script src = "lib/Coordinates.js"></script>
+		<script src = "lib/OrbitControls.js"></script>
+		<script src = "lib/OBJLoader.js"></script>
+
 	</head>
 	<body>
 
 		<script>
 
-		var scene, camera, renderer, controls, stats, terreno, StanzaSpiritoDelTempo, TerrenoStanza;
+		var scene, camera, renderer, controls, stats;
 
 		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 		function getHeightData(img,scale) {
@@ -80,12 +82,35 @@
 			// Creazione Piano della Stanza dello Spirito e del Tempo
 			TerrenoStanza = new THREE.Object3D();
 			var altezzaPianiTerreno = 3;
-			var basamentoMaxVerticale = 120;
+			var basamentoMaxVerticale = 200;
 			var basamentoMinVerticale = 60;
-			var basamentoMaxOrizzontale = 200;
-			var basamentoMinOrizzontale = 60;
+			var basamentoMaxOrizzontale = 350;
+			var basamentoMinOrizzontale = 100;
 			costruzionePiantaStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMaxVerticale,
 															basamentoMinVerticale, basamentoMaxOrizzontale, basamentoMinOrizzontale);
+
+			// Creazione Stanza
+			var Stanza = new THREE.Object3D();
+			var moltiplicatoreStanza = 1;
+			var altezzaSuperficie = moltiplicatoreStanza*30;
+			var r = 30;
+			var dimensioneCupola = 5;
+			costruzioneStanza(Stanza, altezzaSuperficie, moltiplicatoreStanza, r, dimensioneCupola);
+			Stanza.position.set(0,22, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Creazione camere
+			// camera Dx
+			var cameraDx = new THREE.Object3D();
+			var altezzaCamere = 20;
+			var larghezzaCamere = 70;
+			var profonditaCamere = 40;
+			costruzioneCamera(cameraDx, larghezzaCamere, altezzaCamere, profonditaCamere);
+			cameraDx.position.set(r + dimensioneCupola + larghezzaCamere/2,18, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// camera Sx
+			var cameraSx = new THREE.Object3D();
+			costruzioneCamera(cameraSx, larghezzaCamere, altezzaCamere, profonditaCamere);
+			cameraSx.position.set(-(r + dimensioneCupola + larghezzaCamere/2),18, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
 			// Creazione clessidre
 			// Clessidra Sinistra
@@ -93,12 +118,12 @@
 			var moltiplicatoreDim = 2;
 			var altezzaClessidra = moltiplicatoreDim * 20;
 			costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim);
-			ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+			ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
 			// Clessidra Destra
 			ClessidraDx = new THREE.Object3D();
 			costruzioneClessidra(ClessidraDx, altezzaClessidra, moltiplicatoreDim);
-			ClessidraDx.position.set(-(basamentoMaxOrizzontale/2 - 40), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+			ClessidraDx.position.set(-(basamentoMaxOrizzontale/2 - 40), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
 			// Creazione palloncini laterali
 			// Pallocino Sinistro
@@ -106,16 +131,20 @@
 			var moltiplicatoreDimP = 1;
 			var altezzaPalloncino = moltiplicatoreDimP * 21;
 			costruzionePalloncino(PalloncinoSx, altezzaPalloncino, moltiplicatoreDimP);
-			PalloncinoSx.position.set(basamentoMaxOrizzontale/2 - 20, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+			PalloncinoSx.position.set(basamentoMaxOrizzontale/2 - 20, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
 			// Palloncino Destro
 			PalloncinoDx = new THREE.Object3D();
 			costruzionePalloncino(PalloncinoDx, altezzaPalloncino, moltiplicatoreDimP);
-			PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/2)));
+			PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Goku
+			aggiungiGoku();
+			var light = new THREE.DirectionalLight();
 
 			// Gestione scena-pivot
-			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx);
-			scene.add( StanzaSpiritoDelTempo );
+			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx);
+			scene.add( StanzaSpiritoDelTempo, light );
 
 			stats = new Stats();
 			stats.domElement.style.position = 'absolute';
@@ -152,9 +181,9 @@
 
 			var pivotPianta = new THREE.Object3D();
 			var d = 10;
-			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza.jpg");
-			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza.jpg");
-			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza.jpg");
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza2.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza2.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza2.jpg");
 			plane1.position.set(0,0,0);
 			plane2.position.set(0, h,-d);
 			plane3.position.set(0,2*h,-2*d);
@@ -166,9 +195,9 @@
 
 			var pivotPianta = new THREE.Object3D();
 			var d = 10;
-			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza.jpg");
-			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza.jpg");
-			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza.jpg");
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza2.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza2.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza2.jpg");
 			plane1.position.set(0,0,0);
 			plane2.position.set(0, h,0);
 			plane3.position.set(0,2*h,0);
@@ -194,11 +223,9 @@
 			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase, "textures/OroClessidra.jpg");
 			var livBase2 = creaQuadrilatero(basamento + m*1,height, basamento + m*1,colorBase, "textures/OroClessidra.jpg");
 			var livBase3 = creaQuadrilatero(basamento + m*2,height,basamento + m*2,colorBase, "textures/OroClessidra.jpg");
-			var cuboSabbia = creaQuadrilatero(2,2,2,colorBase);
 			livBase2.position.set(0,height,0);
 			livBase3.position.set(0,2*height,0);
-			cuboSabbia.position.set(0,3*height, 0);
-			pivot.add(livBase1,livBase2,livBase3, cuboSabbia);
+			pivot.add(livBase1,livBase2,livBase3);
 			return pivot;
 		}
 
@@ -248,6 +275,7 @@
 				astaP.position.set(0,altezzaP/2,0);
 				sfera.position.set(0,altezzaP + 1, 0);
 				pivotPalloncino.add(baseP, tettoP, astaP, sfera);
+
 		}
 
 		function creaBasePalloncino(m){
@@ -264,7 +292,7 @@
 		}
 
 		function creaAstaPalloncino(m, hp){
-			var height = hp - m*2;
+			var height = hp - (m*2 + 1);
 			var basamento = m*1;
 			var colorBase = 0xaaaaaa;
 			var astaP = creaQuadrilatero(basamento,height,basamento,colorBase);
@@ -285,11 +313,11 @@
 			pivotPalla = new THREE.Object3D();
 			var height = m*1;
 			var colorBase = 0x0000ff;
-			var livBase1 = creaQuadrilatero(m*lato, height, m*lato,colorBase);
-			var livBase2 = creaQuadrilatero(m*lato + m*1,height, m*lato + m*1,colorBase);
-			var livBase3 = creaQuadrilatero(m*lato + m*2,height,m*lato + m*2,colorBase);
-			var livBase4 = creaQuadrilatero(m*lato + m*3,height,m*lato + m*3,colorBase);
-			var livBase5 = creaQuadrilatero(m*lato + m*4,height,m*lato + m*4,colorBase);
+			var livBase1 = creaQuadrilatero(m*lato, height, m*lato,colorBase,"textures/Blu-Texture.jpg");
+			var livBase2 = creaQuadrilatero(m*lato + m*1,height, m*lato + m*1,colorBase, "textures/Blu-Texture.jpg");
+			var livBase3 = creaQuadrilatero(m*lato + m*2,height,m*lato + m*2,colorBase, "textures/Blu-Texture.jpg");
+			var livBase4 = creaQuadrilatero(m*lato + m*3,height,m*lato + m*3,colorBase, "textures/Blu-Texture.jpg");
+			var livBase5 = creaQuadrilatero(m*lato + m*4,height,m*lato + m*4,colorBase, "textures/Blu-Texture.jpg");
 			livBase2.position.set(0,height,0);
 			livBase3.position.set(0,2*height,0);
 			livBase4.position.set(0,3*height,0);
@@ -297,6 +325,94 @@
 			pivotPalla.add(livBase1,livBase2,livBase3,livBase4, livBase5);
 			return pivotPalla;
 		}
+
+		function costruzioneStanza(Stanza, altezzaSup, mul, raggio, dimCupola){
+			var dimSuperficie = 1;
+			var Cupola = costruzioneCupola( mul, raggio, dimCupola);
+			Cupola.position.set(0,altezzaSup - 12,0);
+			var Superficie = costruzioneSuperficie(altezzaSup, mul, raggio, dimSuperficie, dimCupola);
+			Stanza.add(Cupola, Superficie);
+			return Stanza;
+		}
+
+		function costruzioneCupola( m, braccio, lato){
+			var cupola = new THREE.Object3D();
+			var DimbasamentoCupola = 2*braccio;
+			var height = 3;
+			var i = 0*Math.PI/180;
+			var j = 0;
+			while( j < 15){
+				while( i < 360*Math.PI/180){
+					var basamentoCupola = creaQuadrilatero(2*m*lato, height, m*lato, 0x000000, "textures/OroClessidra.jpg");
+					basamentoCupola.position.set(Math.cos(i)*(braccio-j),j,-(Math.sin(i)*(braccio-j)));
+					cupola.add(basamentoCupola);
+					i += 15*Math.PI/180;
+				}
+				j += height;
+				i = 0*Math.PI/180;
+			}
+			return cupola;
+		}
+
+		function costruzioneSuperficie(hS, m, braccio, lato, cup){
+			var superficie = new THREE.Object3D();
+			var i = -15*Math.PI/180;
+			var colorSup = 0xdcdcdc;
+			while(i < 195*Math.PI/180){
+					var colonna = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+					colonna.position.set(Math.cos(i)*(braccio + cup),0,-(Math.sin(i)*(braccio + cup)));
+					superficie.add(colonna);
+					i += 2*Math.PI/180;
+			}
+
+			var j = 0*Math.PI/180;
+			while(j < 360*Math.PI/180){
+					var bordo = creaQuadrilatero(2*m*lato, 2*m*lato, m*lato,colorSup);
+					bordo.position.set(Math.cos(j)*(braccio + cup),hS/2,-(Math.sin(j)*(braccio + cup)));
+					superficie.add(bordo);
+					j += 2*Math.PI/180;
+			}
+
+			// Colonnine frontali separate dalle altre
+			var colonna1 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+			colonna1.position.set(Math.cos(220*Math.PI/180)*(braccio + cup),0,-(Math.sin(220*Math.PI/180)*(braccio + cup)));
+			var colonna2 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+			colonna2.position.set(Math.cos(-50*Math.PI/180)*(braccio + cup),0,-(Math.sin(-50*Math.PI/180)*(braccio + cup)));
+			superficie.add(colonna1, colonna2);
+			return superficie;
+		}
+
+		function costruzioneCamera(camera, larghCamera, hCamera, pCamera){
+
+			var colorSup = 0xdcdcdc;
+			var cuboCamera = creaQuadrilatero(larghCamera, hCamera, pCamera,colorSup);
+			var tetto = new THREE.Object3D();
+			costruzioneTetto(tetto, larghCamera, pCamera);
+			tetto.position.set(0,hCamera/2 + 2,0);
+			camera.add(cuboCamera, tetto);
+			return camera;
+		}
+
+		function costruzioneTetto(tetto, largh, prof){
+			var heightT = 2;
+			var coloreTetto = 0xff0000;
+			for(var i = 0; i < 3; i++){
+				var baseTetto = creaQuadrilatero(largh-(i*3),heightT,prof-(i*3), coloreTetto, "textures/tetto.jpg" );
+				baseTetto.position.set(0,heightT*i,0);
+				tetto.add(baseTetto);
+			}
+		}
+
+		function aggiungiGoku(){
+
+	    var loader = new THREE.OBJLoader();
+
+	    loader.load('textures/Goku/Goku.obj', function (object){
+				//object.scale(2,2,2);
+				object.position.set(0,8,0);
+	      scene.add(object);
+	    });
+	  }
 
 		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
 			// Costruzione plane generico

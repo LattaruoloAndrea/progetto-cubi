@@ -1,0 +1,74 @@
+<html>
+<head>
+  <title>loaderObject</title>
+  <style>
+
+  body {
+    font-family: Monospace;
+    background-color: #f0f0f0;
+    margin: 0px;
+    overflow: hidden;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  </style>
+  <script src = "lib/three.min.js"></script>
+  <script src = "lib/stats.min.js"></script>
+  <script src = "lib/Coordinates.js"></script>
+  <script src = "lib/OrbitControls.js"></script>
+  <script src = "lib/OBJLoader.js"></script>
+
+</head>
+<body>
+  <script>
+
+  var scene, camera, renderer, controls, object;
+
+  function Start() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    renderer = new THREE.WebGLRenderer( {antialias: true} );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setClearColor( 0xf0f0f0 );
+    document.body.appendChild( renderer.domElement );
+    camera.position.set(3,4,50);
+    camera.lookAt( new THREE.Vector3(0,0,0));
+
+
+    aggiungiGoku();
+    var light = new THREE.DirectionalLight();
+    scene.add(light);
+    controls = new THREE.OrbitControls( camera );
+    controls.addEventListener( 'change', Render );
+  }
+
+  function Update() {
+    requestAnimationFrame( Update );
+    controls.update();
+    Render();
+  }
+
+  function aggiungiGoku(){
+
+    var loader = new THREE.OBJLoader();
+
+    loader.load('textures/Goku/Goku.obj', function (object){
+      scene.add(object);
+    });
+  }
+
+  function Render() {
+
+    renderer.render(scene, camera);
+  }
+
+  Start();
+  Update();
+
+  </script>
+</body>
+</html>
