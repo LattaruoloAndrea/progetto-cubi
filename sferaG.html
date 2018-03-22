@@ -1,0 +1,89 @@
+<html>
+	<head>
+		<title>SferaG</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src="lib/three.min.js"></script>
+		<script src="lib/stats.min.js"></script>
+		<script src="lib/Coordinates.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+	</head>
+	<body>
+
+		<script>
+
+		var scene, camera, renderer, controls, stats, sferaG, lato = 1;
+
+		function Start() {
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			renderer = new THREE.WebGLRenderer( {antialias: true} );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0xf0f0f0 );
+			document.body.appendChild( renderer.domElement );
+
+			camera.position.set(3,4,50);
+			camera.lookAt( new THREE.Vector3(0,0,0));
+
+      sferaG = creaQuadrilateroTrasparente(lato,lato,lato, 0x00bfff,0.3);
+      var lightG = new THREE.AmbientLight(0x00bfff, 1 );
+			scene.add( sferaG, lightG );
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+
+			// uncomment if you need to draw coordinate axes when building the scene
+			//Coordinates.drawAllAxes();
+
+			controls = new THREE.OrbitControls( camera );
+			controls.addEventListener( 'change', Render );
+			}
+
+      function creaQuadrilateroTrasparente(larghezza, altezza, profondita, colore, opacita){
+  			// Costruzione plane generico
+  			var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
+  			var planeMaterial = new THREE.MeshPhongMaterial( { color: colore, transparent: true, opacity:opacita} );
+  			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+  			//var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+  			return plane;
+  		}
+
+		function Update() {
+			requestAnimationFrame( Update );
+			controls.update();
+			stats.update();
+			Render();
+		}
+
+    function Render() {
+
+    if(lato< 50){
+    lato += 0.01;
+    sferaG.scale.set(lato,lato,lato);
+  }
+
+    renderer.render(scene, camera);
+    }
+
+		Start();
+		Update();
+
+		</script>
+	</body>
+</html>
