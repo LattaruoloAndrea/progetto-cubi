@@ -290,7 +290,7 @@
 			var baseP = creaBasePalloncino(mul);
 			var tettoP = creaBasePalloncino(mul);
 			var astaP = creaAstaPalloncino(mul, altezzaP);
-			var sfera = creaSfera(mul, latoSfera);
+			var sfera = creaSfera(mul, latoSfera, 0x00008d);
 			tettoP.rotation.set(180*Math.PI/180,0,0);
 			tettoP.position.set(0,altezzaP,0);
 			astaP.position.set(0,altezzaP/2,0);
@@ -320,26 +320,27 @@
 			return astaP;
 		}
 
-		function creaSfera(moltiplicatore, lato){
+		function creaSfera(moltiplicatore, lato, color){
 			var Sphere = new THREE.Object3D();
-			var metaSfera1 = creaMetaSfera(moltiplicatore ,lato);
-			var metaSfera2 = creaMetaSfera(moltiplicatore ,lato);
+			var colorPal = color;
+			var metaSfera1 = creaMetaSfera(moltiplicatore ,lato, colorPal);
+			var metaSfera2 = creaMetaSfera(moltiplicatore ,lato, colorPal);
 			metaSfera2.position.set(0,moltiplicatore*8 + 1,0);
 			metaSfera2.rotation.set(180*Math.PI/180,0,0);
 			Sphere.add(metaSfera1, metaSfera2);
 			return Sphere;
 		}
 
-		function creaMetaSfera(m, lato){
+		function creaMetaSfera(m, lato, color){
 			pivotPalla = new THREE.Object3D();
 			var height = m*1;
 			var opacitaPalloncino = 0.7;
-			var colorBase = 0x00008b; // BLU
-			var livBase1 = creaQuadrilateroTrasparente(m*lato, height, m*lato,colorBase, opacitaPalloncino);
-			var livBase2 = creaQuadrilateroTrasparente(m*lato + m*1,height, m*lato + m*1,colorBase, opacitaPalloncino);
-			var livBase3 = creaQuadrilateroTrasparente(m*lato + m*2,height,m*lato + m*2,colorBase, opacitaPalloncino);
-			var livBase4 = creaQuadrilateroTrasparente(m*lato + m*3,height,m*lato + m*3,colorBase, opacitaPalloncino);
-			var livBase5 = creaQuadrilateroTrasparente(m*lato + m*4,height,m*lato + m*4,colorBase, opacitaPalloncino);
+
+			var livBase1 = creaQuadrilateroTrasparente(m*lato, height, m*lato,color, opacitaPalloncino);
+			var livBase2 = creaQuadrilateroTrasparente(m*lato + m*1,height, m*lato + m*1,color, opacitaPalloncino);
+			var livBase3 = creaQuadrilateroTrasparente(m*lato + m*2,height,m*lato + m*2,color, opacitaPalloncino);
+			var livBase4 = creaQuadrilateroTrasparente(m*lato + m*3,height,m*lato + m*3,color, opacitaPalloncino);
+			var livBase5 = creaQuadrilateroTrasparente(m*lato + m*4,height,m*lato + m*4,color, opacitaPalloncino);
 			livBase2.position.set(0,height,0);
 			livBase3.position.set(0,2*height,0);
 			livBase4.position.set(0,3*height,0);
@@ -378,7 +379,12 @@
 			// Parte superiore: chiusra cupola + pallocino
 			var chiusuraCupola = creaQuadrilatero(DimbasamentoCupola - (valoreMax + 3*lato), height, DimbasamentoCupola - (valoreMax + 3*lato), 0xdaa520);
 			chiusuraCupola.position.set(0,valoreMax,0);
-			cupola.add(chiusuraCupola);
+			var cubo = creaQuadrilatero(valoreMax-1*lato,valoreMax-1*lato,valoreMax-1*lato, 0xdaa520);
+			cubo.position.set(0,valoreMax + height- 1,0);
+			// pallocino
+			var cupolino = creaPuntaClessidra(5);
+			cupolino.position.set(0,valoreMax + 2*height - 1,0);
+			cupola.add(chiusuraCupola, cupolino, cubo);
 			return cupola;
 		}
 

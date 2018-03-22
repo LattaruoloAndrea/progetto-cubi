@@ -1,0 +1,143 @@
+<html>
+<head>
+  <title>Stanza dello Spirito e del Tempo</title>
+  <style>
+
+  body {
+    font-family: Monospace;
+    background-color: #f0f0f0;
+    margin: 0px;
+    overflow: hidden;
+  }
+
+  canvas {
+    width: 100%;
+    height: 100%;
+  }
+
+  </style>
+  <script src = "lib/three.min.js"></script>
+  <script src = "lib/stats.min.js"></script>
+  <script src = "lib/Coordinates.js"></script>
+  <script src = "lib/OrbitControls.js"></script>
+  <script src = "lib/OBJLoader.js"></script>
+
+</head>
+<body>
+
+  <script>
+
+  var scene, camera, renderer, controls, stats, Goku, Vegeta;
+
+  function Start() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+    renderer = new THREE.WebGLRenderer( {antialias: true} );
+    renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.setClearColor( 0xf0f0f0 );
+    document.body.appendChild( renderer.domElement );
+    camera.position.set(0,0,20);
+    camera.lookAt( new THREE.Vector3(0,0,0));
+
+    Goku = new THREE.Object3D();
+    Vegeta = new THREE.Object3D();
+    creaPersonaggio(Goku);
+    creaPersonaggio(Vegeta);
+
+    scene.add(Goku);
+
+    stats = new Stats();
+    stats.domElement.style.position = 'absolute';
+    stats.domElement.style.top = '0px';
+    document.body.appendChild( stats.domElement );
+
+    controls = new THREE.OrbitControls( camera );
+    controls.addEventListener( 'change', Render );
+
+  }
+
+  function creaPersonaggio(personaggio){ //varie texture){
+
+    var color = 0xffffff;
+    var colorHair = 0xffffff;
+    var colorFace = 0xe9967a;
+    var colorPunch = 0xe9967a;
+    var colorScarpe = 0x00008b;
+    var hgamba = 8;
+    var lgamba = 2;
+
+    var hbraccio = 5;
+    var lbraccio = 2;
+
+    var capelli = creaQuadrilatero(3,0.5,3,colorHair);
+    var faccia = creaQuadrilatero(3,3,3,colorFace);
+    var corpo = creaQuadrilatero(5,9,5,color, "textures/Goku/shirts.png");
+
+    var gambaDx = new THREE.Object3D();
+    var gambaSx = new THREE.Object3D();
+    var gamba = creaQuadrilatero(lgamba,hgamba,lgamba,color, "textures/Goku/pants.png");
+    var scarpa = creaQuadrilatero(lgamba,1,lgamba,colorScarpe);
+    scarpa.position.set(0,hgamba/2,0);
+    gambaDx.add(gamba,scarpa);
+    gambaSx.add(gamba,scarpa);
+    // Braccia
+    var braccioDx = new THREE.Object3D();
+    var braccioSx = new THREE.Object3D();
+    var braccio = creaQuadrilatero(lbraccio,hbraccio,lbraccio,color, "textures/Goku/pants.png");
+    var pugno = creaQuadrilatero(lbraccio,1,lbraccio,colorPunch);
+    pugno.position.set(0,hbraccio/2,0);
+    braccioDx.add(braccio, pugno);
+    braccioSx.add(braccio, pugno);
+
+
+    personaggio.add(capelli, faccia, corpo, gambaDx, gambaSx, braccioDx, braccioSx);
+    posizionamento(capelli, faccia, corpo, gambaDx, gambaSx, braccioDx, braccioSx);
+
+    return personaggio;
+  }
+
+  function posizionamento(faccia, corpo, gambaDx, gambaSx, braccioDx, braccioSx){
+
+    faccia.position.set(0,9/2,0);
+    gambaDx.position.set(2,-9/2,0);
+    gambaSx.position.set(-2,-9/2,0);
+    braccioDx.position.set(2,9/2-2,4);
+    braccioSx.position.set(-2,9/2-2,4);
+    braccioDx.rotation.set(90*Math.PI/180,0,0);
+    braccioSx.rotation.set(90*Math.PI/180,0,0);
+  }
+
+  function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
+    // Costruzione plane generico
+    var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
+    //
+    if(image == undefined){
+      var planeMaterial = new THREE.MeshPhongMaterial( { color: colore } );
+      var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+    } else {
+      var texture = new THREE.TextureLoader().load( image );
+      var planeMaterial = new THREE.MeshPhongMaterial( { map: texture } );
+      var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+    }
+    return plane;
+  }
+
+
+  function Update() {
+    requestAnimationFrame( Update );
+    controls.update();
+    stats.update();
+    Render();
+  }
+
+  function Render() {
+
+    renderer.render(scene, camera);
+  }
+
+  Start();
+  Update();
+
+  </script>
+</body>
+</html>
