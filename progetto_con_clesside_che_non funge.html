@@ -1,0 +1,798 @@
+<html>
+	<head>
+		<title>Stanza dello Spirito e del Tempo</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src = "lib/three.min.js"></script>
+		<script src = "lib/stats.min.js"></script>
+		<script src = "lib/Coordinates.js"></script>
+		<script src = "lib/OrbitControls.js"></script>
+		<script src = "lib/OBJLoader.js"></script>
+
+	</head>
+	<body>
+
+		<script>
+
+		var scene, camera, renderer, controls, stats, gokuBody;
+		var granelli1=[],granelli2=[],h,l,d,ClessidraSx,ClessidraDx,arrayPosGranelli1 = [],arrayPosGranelli2=[];
+		var num ,t,start,end,dimSabbia;
+		var pivotAggiustaMovimento1,pivotAggiustaMovimento2;
+		var tempo1 = [],tempo2 = [];
+		var posIesimaY1 = [],p1=[],posIesimaY2 = [],p2=[];
+		var gap = 0.9,count =0;
+		var angolo = 2.0;
+		var inverso = false;
+
+		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
+		function getHeightData(img,scale) {
+
+		 if (scale == undefined) scale=1;
+
+		    var canvas = document.createElement( 'canvas' );
+		    canvas.width = img.width;
+		    canvas.height = img.height;
+		    var context = canvas.getContext( '2d' );
+
+		    var size = img.width * img.height;
+			console.log(size);
+		    var data = new Float32Array( size );
+
+		    context.drawImage(img,0,0);
+
+		    for ( var i = 0; i < size; i ++ ) {
+		        data[i] = 0
+		    }
+
+		    var imgd = context.getImageData(0, 0, img.width, img.height);
+		    var pix = imgd.data;
+
+		    var j=0;
+		    for (var i = 0; i<pix.length; i +=4) {
+		        var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
+		        data[j++] = scale*all/3;
+		    }
+
+		    return data;
+		}
+
+		function Start() {
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+			renderer = new THREE.WebGLRenderer( {antialias: true} );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0xf0f0f0 );
+			document.body.appendChild( renderer.domElement );
+			camera.position.set(3,4,100);
+			camera.lookAt( new THREE.Vector3(0,0,0));
+
+			// Costruzione terreno
+			var geometry = new THREE.PlaneGeometry(10000,10000);
+			var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
+			var terreno = new THREE.Mesh(geometry, material);
+
+			// Creazione Stanza dello Spirito e del Tempo
+			StanzaSpiritoDelTempo = new THREE.Object3D();
+
+			// Creazione Piano della Stanza dello Spirito e del Tempo
+			TerrenoStanza = new THREE.Object3D();
+			var altezzaPianiTerreno = 3;
+			var basamentoMaxVerticale = 200;
+			var basamentoMinVerticale = 60;
+			var basamentoMaxOrizzontale = 350;
+			var basamentoMinOrizzontale = 100;
+			costruzionePiantaStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMaxVerticale,
+															basamentoMinVerticale, basamentoMaxOrizzontale, basamentoMinOrizzontale);
+
+			// Creazione Stanza
+			var Stanza = new THREE.Object3D();
+			var moltiplicatoreStanza = 1;
+			var altezzaSuperficie = moltiplicatoreStanza*30;
+			var r = 30;
+			var dimensioneCupola = 5;
+			costruzioneStanza(Stanza, altezzaSuperficie, moltiplicatoreStanza, r, dimensioneCupola);
+			Stanza.position.set(0,22, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Creazione camere
+			// camera Dx
+			var cameraDx = new THREE.Object3D();
+			var altezzaCamere = 20;
+			var larghezzaCamere = 70;
+			var profonditaCamere = 40;
+			costruzioneCamera(cameraDx, larghezzaCamere, altezzaCamere, profonditaCamere);
+			cameraDx.position.set(r + dimensioneCupola + larghezzaCamere/2,18, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// camera Sx
+			var cameraSx = new THREE.Object3D();
+			costruzioneCamera(cameraSx, larghezzaCamere, altezzaCamere, profonditaCamere);
+			cameraSx.position.set(-(r + dimensioneCupola + larghezzaCamere/2),18, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Creazione clessidre
+			dimSabbia = 0.5;
+			h=moltiplicatoreDim*15;
+			pivotAggiustaMovimento1 = new THREE.Object3D();
+			pivotAggiustaMovimento2 = new THREE.Object3D();
+			// Clessidra Sinistra
+			ClessidraSx = new THREE.Object3D();
+			var moltiplicatoreDim = 2;
+			var altezzaClessidra = moltiplicatoreDim * 20;
+			costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim,0);
+			ClessidraSx.add(pivotAggiustaMovimento1);
+			ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Clessidra Destra
+			ClessidraDx = new THREE.Object3D();
+			costruzioneClessidra(ClessidraDx, altezzaClessidra, moltiplicatoreDim,1);
+			ClessidraDx.add(pivotAggiustaMovimento2);
+			ClessidraDx.position.set(-(basamentoMaxOrizzontale/2 - 40), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Creazione palloncini laterali
+			// Pallocino Sinistro
+			PalloncinoSx = new THREE.Object3D();
+			var moltiplicatoreDimP = 1;
+			var altezzaPalloncino = moltiplicatoreDimP * 21;
+			costruzionePalloncino(PalloncinoSx, altezzaPalloncino, moltiplicatoreDimP);
+			PalloncinoSx.position.set(basamentoMaxOrizzontale/2 - 20, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Palloncino Destro
+			PalloncinoDx = new THREE.Object3D();
+			costruzionePalloncino(PalloncinoDx, altezzaPalloncino, moltiplicatoreDimP);
+			PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+			// Goku
+			//aggiungiGoku();
+			var amLight = new THREE.AmbientLight(0xfaffe3, 0.8);
+			var dLight = new THREE.DirectionalLight(0xffffff, 0.1);
+			//dLight.target = gokuBody;
+			// Gestione scena-pivot
+			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx);
+			//StanzaSpiritoDelTempo.add(ClessidraDx, ClessidraSx);
+			scene.add( StanzaSpiritoDelTempo, dLight, amLight);
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+
+			// uncomment if you need to draw coordinate axes when building the scene
+			//Coordinates.drawAllAxes();
+
+			controls = new THREE.OrbitControls( camera );
+			controls.addEventListener( 'change', Render );
+
+			// terrain
+			var img = new Image();
+			img.onload = function () {
+				//get height data from img
+				var data = getHeightData(img,0.1);
+				// load img source
+				img.src = "textures/heightmap2.png";
+			}
+		}
+
+		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
+
+		// Piani TerrenoStanza
+		var piantaVerticale = creaPiantaVert(height, basamentoMaxV, basamentoMinV);
+		var piantaOrizzontale = creaPiantaOrizz(height, basamentoMaxO, basamentoMinO);
+		piantaOrizzontale.rotation.set(0,90*Math.PI/180,0);
+		piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
+		obj.add(piantaVerticale, piantaOrizzontale);
+	  }
+
+		function creaPiantaVert(h, bM, bm){
+
+			var pivotPianta = new THREE.Object3D();
+			var d = 10;
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza2.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza2.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza2.jpg");
+			plane1.position.set(0,0,0);
+			plane2.position.set(0, h,-d);
+			plane3.position.set(0,2*h,-2*d);
+			pivotPianta.add(plane1, plane2, plane3);
+			return pivotPianta;
+		}
+
+		function creaPiantaOrizz(h, bM, bm){
+
+			var pivotPianta = new THREE.Object3D();
+			var d = 10;
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza2.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza2.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza2.jpg");
+			plane1.position.set(0,0,0);
+			plane2.position.set(0, h,0);
+			plane3.position.set(0,2*h,0);
+			pivotPianta.add(plane1, plane2, plane3);
+			return pivotPianta;
+		}
+
+		function costruzioneClessidra(pivotClessidra, altezzaCl, mul,graneNum){
+			//crea una clessidra
+			var base = creaBaseClessidra(mul);
+			var tetto = creaBaseClessidra(mul);
+			tetto.rotation.set(180*Math.PI/180,0,0);
+			tetto.position.set(0,altezzaCl,0);
+			var vetro = creaVetroClessidra(mul);
+			var hh = 6;
+			var ll = mul*4/dimSabbia;
+			var dd = mul*4/dimSabbia;
+			if(graneNum==0){
+			granelli1 = sabbia(ll,hh,dd,5,0xff0000,mul,graneNum);
+			t = granelli1.length;
+			num = hh*ll*dd;
+			start = num -1;
+			end = t -1;
+			initializePosition(granelli1,graneNum);
+			var pivotGranelli = new THREE.Object3D();
+			for(var i=0;i<granelli1.length;i++){
+				pivotGranelli.add(granelli1[i]);
+			}
+			pivotClessidra.add(vetro, base, tetto,pivotGranelli);
+			}
+			else{
+				granelli2 = sabbia(ll,hh,dd,5,0xff0000,mul,graneNum);
+				t = granelli2.length;
+				num = hh*ll*dd;
+				start = num -1;
+				end = t -1;
+				initializePosition(granelli2,graneNum);
+				var pivotGranelli = new THREE.Object3D();
+				for(var i=0;i<granelli2.length;i++){
+					pivotGranelli.add(granelli1[i]);
+				}
+				pivotClessidra.add(vetro, base, tetto,pivotGranelli);
+			}
+		}
+
+		function creaBaseClessidra(m){
+			pivot = new THREE.Object3D();
+			var height = m*1;
+			var basamento = m*3;
+			l = basamento;
+			d = basamento;
+			var colorBase = 0xffd700;
+			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase, "textures/OroClessidra.jpg");
+			var livBase2 = creaQuadrilatero(basamento + m*1,height, basamento + m*1,colorBase, "textures/OroClessidra.jpg");
+			var livBase3 = creaQuadrilatero(basamento + m*2,height,basamento + m*2,colorBase, "textures/OroClessidra.jpg");
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			pivot.add(livBase1,livBase2,livBase3);
+			return pivot;
+		}
+
+		function creaVetroClessidra(m){
+
+			// Unione pezzi clessidra
+			pivotVetroClessidra = new THREE.Object3D();
+			var dimensioneLato = 5;
+			var posizioneVetro = m*5;
+			// parte sotto
+			metaClessidra1 = metaVetroClessidra(dimensioneLato, m);
+			// parte sopra
+			metaClessidra2 = metaVetroClessidra(dimensioneLato, m);
+			// Regolazione parti sopra-sotto
+			metaClessidra1.position.set(0,posizioneVetro,0);
+			metaClessidra2.position.set(0,3*posizioneVetro,0);
+			metaClessidra2.rotation.set(180*Math.PI/180,0,0);
+			// Parte centrale
+			centroClessidra = creaQuadrilateroTrasparente(m*1,m*1,m*1,0x000000);
+			centroClessidra.position.set(0,2*posizioneVetro,0);
+			pivotVetroClessidra.add(metaClessidra1, metaClessidra2, centroClessidra);
+			return pivotVetroClessidra;
+		}
+
+		function metaVetroClessidra(l, m){
+			pivot = new THREE.Object3D();
+			var altezzaVetri = m*1;
+			var colorBase = 0x000000;
+			var metaVetro = creaQuadrilateroTrasparente(m*l,m*l,m*l,colorBase);
+			var metaVetro1 = creaQuadrilateroTrasparente(m*(l-1), altezzaVetri, m*(l-1),colorBase);
+			var metaVetro2 = creaQuadrilateroTrasparente(m*(l-2), altezzaVetri, m*(l-2),colorBase);
+			metaVetro1.position.set(0,m*2 + altezzaVetri,0);
+			metaVetro2.position.set(0,m*2 + 2*altezzaVetri,0);
+			pivot.add(metaVetro, metaVetro1, metaVetro2);
+			return pivot;
+		}
+
+		function costruzionePalloncino(pivotPalloncino, altezzaP, mul){
+
+				var latoSfera = 5;
+				var baseP = creaBasePalloncino(mul);
+				var tettoP = creaBasePalloncino(mul);
+				var astaP = creaAstaPalloncino(mul, altezzaP);
+				var sfera = creaSfera(mul, latoSfera);
+				tettoP.rotation.set(180*Math.PI/180,0,0);
+				tettoP.position.set(0,altezzaP,0);
+				astaP.position.set(0,altezzaP/2,0);
+				sfera.position.set(0,altezzaP + 1, 0);
+				pivotPalloncino.add(baseP, tettoP, astaP, sfera);
+
+		}
+
+		function creaBasePalloncino(m){
+
+			pivot = new THREE.Object3D();
+			var height = m*1;
+			var basamento = m*2;
+			var colorBase = 0xffd700;
+			var livBaseP1 = creaQuadrilatero(basamento,height,basamento,colorBase, "textures/OroClessidra.jpg");
+			var livBaseP2 = creaQuadrilatero(basamento - m*1,height, basamento - m*1,colorBase, "textures/OroClessidra.jpg");
+			livBaseP2.position.set(0,height,0);
+			pivot.add(livBaseP1, livBaseP2);
+			return pivot;
+		}
+
+		function creaAstaPalloncino(m, hp){
+			var height = hp - (m*2 + 1);
+			var basamento = m*1;
+			var colorBase = 0xaaaaaa;
+			var astaP = creaQuadrilatero(basamento,height,basamento,colorBase);
+			return astaP;
+		}
+
+		function creaSfera(moltiplicatore, lato){
+			var Sphere = new THREE.Object3D();
+			var metaSfera1 = creaMetaSfera(moltiplicatore ,lato);
+			var metaSfera2 = creaMetaSfera(moltiplicatore ,lato);
+			metaSfera2.position.set(0,moltiplicatore*8,0);
+			metaSfera2.rotation.set(180*Math.PI/180,0,0);
+			Sphere.add(metaSfera1, metaSfera2);
+			return Sphere;
+		}
+
+		function creaMetaSfera(m, lato){
+			pivotPalla = new THREE.Object3D();
+			var height = m*1;
+			var colorBase = 0x0000ff;
+			var livBase1 = creaQuadrilatero(m*lato, height, m*lato,colorBase,"textures/Blu-Texture.jpg");
+			var livBase2 = creaQuadrilatero(m*lato + m*1,height, m*lato + m*1,colorBase, "textures/Blu-Texture.jpg");
+			var livBase3 = creaQuadrilatero(m*lato + m*2,height,m*lato + m*2,colorBase, "textures/Blu-Texture.jpg");
+			var livBase4 = creaQuadrilatero(m*lato + m*3,height,m*lato + m*3,colorBase, "textures/Blu-Texture.jpg");
+			var livBase5 = creaQuadrilatero(m*lato + m*4,height,m*lato + m*4,colorBase, "textures/Blu-Texture.jpg");
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			livBase4.position.set(0,3*height,0);
+			livBase5.position.set(0,4*height,0);
+			pivotPalla.add(livBase1,livBase2,livBase3,livBase4, livBase5);
+			return pivotPalla;
+		}
+
+		function costruzioneStanza(Stanza, altezzaSup, mul, raggio, dimCupola){
+			var dimSuperficie = 1;
+			var Cupola = costruzioneCupola( mul, raggio, dimCupola);
+			Cupola.position.set(0,altezzaSup - 12,0);
+			var Superficie = costruzioneSuperficie(altezzaSup, mul, raggio, dimSuperficie, dimCupola);
+			Stanza.add(Cupola, Superficie);
+			return Stanza;
+		}
+
+		function costruzioneCupola( m, braccio, lato){
+			var cupola = new THREE.Object3D();
+			var DimbasamentoCupola = 2*braccio;
+			var height = 3;
+			var i = 0*Math.PI/180;
+			var j = 0;
+			while( j < 15){
+				while( i < 360*Math.PI/180){
+					var basamentoCupola = creaQuadrilatero(2*m*lato, height, m*lato, 0x000000, "textures/OroClessidra.jpg");
+					basamentoCupola.position.set(Math.cos(i)*(braccio-j),j,-(Math.sin(i)*(braccio-j)));
+					cupola.add(basamentoCupola);
+					i += 15*Math.PI/180;
+				}
+				j += height;
+				i = 0*Math.PI/180;
+			}
+			return cupola;
+		}
+
+		function costruzioneSuperficie(hS, m, braccio, lato, cup){
+			var superficie = new THREE.Object3D();
+			var i = -15*Math.PI/180;
+			var colorSup = 0xdcdcdc;
+			while(i < 195*Math.PI/180){
+					var colonna = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+					colonna.position.set(Math.cos(i)*(braccio + cup),0,-(Math.sin(i)*(braccio + cup)));
+					superficie.add(colonna);
+					i += 2*Math.PI/180;
+			}
+
+			var j = 0*Math.PI/180;
+			while(j < 360*Math.PI/180){
+					var bordo = creaQuadrilatero(2*m*lato, 2*m*lato, m*lato,colorSup);
+					bordo.position.set(Math.cos(j)*(braccio + cup),hS/2,-(Math.sin(j)*(braccio + cup)));
+					superficie.add(bordo);
+					j += 2*Math.PI/180;
+			}
+
+			// Colonnine frontali separate dalle altre
+			var colonna1 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+			colonna1.position.set(Math.cos(220*Math.PI/180)*(braccio + cup),0,-(Math.sin(220*Math.PI/180)*(braccio + cup)));
+			var colonna2 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+			colonna2.position.set(Math.cos(-50*Math.PI/180)*(braccio + cup),0,-(Math.sin(-50*Math.PI/180)*(braccio + cup)));
+			superficie.add(colonna1, colonna2);
+			return superficie;
+		}
+
+		function costruzioneCamera(camera, larghCamera, hCamera, pCamera){
+
+			var colorSup = 0xdcdcdc;
+			var cuboCamera = creaQuadrilatero(larghCamera, hCamera, pCamera,colorSup);
+			var tetto = new THREE.Object3D();
+			costruzioneTetto(tetto, larghCamera, pCamera);
+			tetto.position.set(0,hCamera/2 + 2,0);
+			camera.add(cuboCamera, tetto);
+			return camera;
+		}
+
+		function costruzioneTetto(tetto, largh, prof){
+			var heightT = 2;
+			var coloreTetto = 0xff0000;
+			for(var i = 0; i < 3; i++){
+				var baseTetto = creaQuadrilatero(largh-(i*3),heightT,prof-(i*3), coloreTetto, "textures/tetto.jpg" );
+				baseTetto.position.set(0,heightT*i,0);
+				tetto.add(baseTetto);
+			}
+		}
+
+		function aggiungiGoku(){
+
+			var manager = new THREE.LoadingManager();
+	    var loader = new THREE.ImageLoader(manager);
+
+			// Texture shirt
+			var shirtTexture = new THREE.Texture();
+	    loader.load('textures/Goku/shirt.png', function (image){
+				shirtTexture.image = image;
+				shirtTexture.needsUpdate = true;
+	    });
+
+			// Texture hair
+			var hairTexture = new THREE.Texture();
+			loader.load('textures/Goku/hair.png', function (image){
+				hairTexture.image = image;
+				hairTexture.needsUpdate = true;
+			});
+
+			// Texture pants
+			var pantsTexture = new THREE.Texture();
+			loader.load('textures/Goku/pants.png', function (image){
+				pantsTexture.image = image;
+				pantsTexture.needsUpdate = true;
+			});
+
+			// Texture eyes
+			var eyesTexture = new THREE.Texture();
+			loader.load('textures/Goku/eyes.png', function (image){
+				eyesTexture.image = image;
+				eyesTexture.needsUpdate = true;
+			});
+
+			// Texture face
+			var faceTexture = new THREE.Texture();
+			loader.load('textures/Goku/face.png', function (image){
+				faceTexture.image = image;
+				faceTexture.needsUpdate = true;
+			});
+
+			var meshes = [];
+			var objLoader = new THREE.OBJLoader();
+
+			objLoader.load('textures/Goku/Goku.obj', function ( object ){
+				object.traverse( function (child) {
+					if( child instanceof THREE.Mesh )
+					{
+						meshes.push(child);
+					}
+				});
+
+				var Goku = new THREE.Object3D();
+				gokuPants = meshes[0];
+				gokuShirt = meshes[1];
+				gokuFace = meshes[2];
+				gokuEyes = meshes[3];
+				gokuHair = meshes[4];
+				Goku.add(gokuPants, gokuShirt, gokuFace, gokuEyes, gokuHair);
+				scene.add(Goku);
+				Goku.position.set(0,8,-50);
+				Goku.scale.set(1/2,1/2,1/2);
+
+				gokuPants.material = new THREE.MeshPhongMaterial({map: pantsTexture});
+				gokuShirt.material = new THREE.MeshPhongMaterial({map: shirtTexture});
+				gokuFace.material = new THREE.MeshPhongMaterial({map: faceTexture});
+				gokuEyes.material = new THREE.MeshPhongMaterial({map: eyesTexture});
+				gokuHair.material = new THREE.MeshPhongMaterial({map: hairTexture});
+			});
+	  }
+
+		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
+			// Costruzione plane generico
+			var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
+			//
+			if(image == undefined){
+			var planeMaterial = new THREE.MeshBasicMaterial( { color: colore } );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+		} else {
+			var texture = new THREE.TextureLoader().load( image );
+			var planeMaterial = new THREE.MeshBasicMaterial( { map: texture } );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+		}
+			return plane;
+		}
+
+		function creaQuadrilateroTrasparente(larghezza, altezza, profondita, colore){
+			// Costruzione plane generico
+			var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
+			var planeMaterial = new THREE.MeshBasicMaterial( { color: colore, transparent: true, opacity:0.05 } );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			return plane;
+		}
+
+		function sabbia(larghezza,altezza,profondita,dimBase,colore,mul,cl,image){
+			console.log(larghezza, profondita);
+			var geometryGranello = new THREE.BoxGeometry(dimSabbia,dimSabbia,dimSabbia);
+			var materialeGranello;
+			var numGranello = 0;
+			var grane = [];
+			var xD=-dimBase*mul/2+5*dimSabbia/2,yD=6-1+dimSabbia/2,zD=-dimBase*mul/2+5*dimSabbia/2;//-dimSabbia
+			for(var i=0;i<altezza;i++){
+				for(var j=0;j<larghezza;j++){
+					for(var k=0;k<profondita;k++){
+						if(image==undefined){
+							materialeGranello = new THREE.MeshBasicMaterial( { color: colore } );
+						}
+						else{
+							var texture = new THREE.TextureLoader().load( image );
+							materialeGranello = new THREE.MeshBasicMaterial( {map:texture});
+						}
+						var granello =new THREE.Mesh(geometryGranello,materialeGranello);
+						granello.position.set(xD,yD,zD);
+						if(cl==0){
+							arrayPosGranelli1.push(new THREE.Vector3(xD,yD,zD));
+						}else{
+							arrayPosGranelli2.push(new THREE.Vector3(xD,yD,zD));
+						}
+						grane.push(granello);
+						numGranello += 1;
+						xD += dimSabbia;
+					}
+					xD=-dimBase*mul/2+5*dimSabbia/2;
+					zD +=dimSabbia;
+				}
+				zD=-dimBase*mul/2+5*dimSabbia/2;
+				yD+=dimSabbia;
+			}
+			return grane;
+		}
+
+		function initializePosition(listaGranelli,numClessidra){
+			if(numClessidra==0){
+				for(var i=0;i<listaGranelli.length;i++){
+					posIesimaY1[i]= 0;
+					p1[i] =0;
+					tempo1[i] = 0;
+				}
+			}else {
+				for(var i=0;i<listaGranelli.length;i++){
+					posIesimaY2[i]= 0;
+					p2[i] =0;
+					tempo2[i] = 0;
+				}
+			}
+		}
+
+
+		function Render()
+		{
+				 requestAnimationFrame(Render);
+				 controls.update();
+
+//ClessidraSx*******************************************************************************************************
+				 if(inverso)//verso inverso
+				 {
+					 if(count<1){
+					for(var i=start;i>=end;i--){
+						if(posIesimaY1[i]<=h/2){
+								p1[i] -= (l*gap)/(h*2*Math.PI);
+						}
+						else{
+								p1[i]+=(l*gap)/(h*2*Math.PI);
+						}
+						if(i == start) {
+							tempo1[i] += angolo/(2.0*Math.PI);
+						}else {
+							tempo1[i] = Math.max(0.0, tempo1[i+1]-angolo/(2.0*Math.PI));
+						}
+
+						//pivot usato per centrare  la spirale inversa
+						pivotAggiustaMovimento1.add(granelli1[i]);
+						pivotAggiustaMovimento1.position.set(0,6-(3*dimSabbia/2),0);
+
+						//spirale granelli1 inversa
+						granelli1[i].position.set(Math.cos(tempo1[i])*(l/2-p1[i]),posIesimaY1[i],Math.sin(tempo1[i])*(d/2-p1[i]));//-(i*60)
+						posIesimaY1[i] -= gap/(2.0*Math.PI);
+
+						//quando arrivo all'altezzaMassima devo ordinare i granelli1 nella griglia
+						if(posIesimaY1[i]<=dimSabbia){
+							start -= 1;//il primo granello non serve piu contarlo
+							var x = arrayPosGranelli1[i].x;
+							var y = arrayPosGranelli1[i].y;
+							var z = arrayPosGranelli1[i].z;
+							granelli1[i].position.set(x,y-5,z);//dimSabbia
+							if(start==-1){//abilito drirro
+								inverso=false;
+								start= t-1;
+								end = t-1;
+							}
+						}
+						count +=1;
+						}
+					}else{
+						if(end>0){
+						end -=1;}
+						count =0;
+					}
+				 }
+				 else//verso dritto
+				 {
+					if(count<1){
+					for(var i=start;i>=end;i--){
+						if(posIesimaY1[i]<=h/2){
+								p1[i] += (l*gap)/(h*2*Math.PI);
+						}
+						else{
+								p1[i]-=(l*gap)/(h*2*Math.PI);
+								}
+						if(i == start) {
+							tempo1[i] += angolo/(2.0*Math.PI);
+						}else {
+							tempo1[i] = Math.max(0.0, tempo1[i+1]-angolo/(2.0*Math.PI));
+						}
+
+						//pivot usato per centrare  la spirale
+						pivotAggiustaMovimento1.add(granelli1[i]);
+						pivotAggiustaMovimento1.position.set(0,6-(3*dimSabbia/2),0);
+
+						//spirale granelli1
+						granelli1[i].position.set(Math.cos(tempo1[i])*(l/2-p1[i]),posIesimaY1[i],Math.sin(tempo1[i])*(d/2-p1[i]));//-(i*60)
+						posIesimaY1[i] += gap/(2.0*Math.PI);
+
+						//quando arrivo all'altezzaMassima devo orginare i granelli1
+						if(posIesimaY1[i]>=h-dimSabbia){
+							start -= 1;//il primo granello non serve piu contarlo
+							var x = arrayPosGranelli1[i].x;
+							var y = arrayPosGranelli1[i].y;
+							var z = arrayPosGranelli1[i].z;
+							granelli1[i].position.set(x,h-(y-5),z);//dimSabbia
+							if(start==-1){//abilito l'inverso
+								inverso=true;
+								start= t-1;
+								end = t-1;
+							}
+						}
+						count +=1;
+						}
+					}else{
+						if(end>0){
+						end -=1;}
+						count =0;
+					}
+				}
+
+//ClessidraDx************************************************************************************************
+				 if(!inverso)//verso inverso
+				 {
+					 if(count<1){
+					for(var i=start;i>=end;i--){
+						if(posIesimaY2[i]<=h/2){
+								p2[i] -= (l*gap)/(h*2*Math.PI);
+						}
+						else{
+								p2[i]+=(l*gap)/(h*2*Math.PI);
+						}
+						if(i == start) {
+							tempo2[i] += angolo/(2.0*Math.PI);
+						}else {
+							tempo2[i] = Math.max(0.0, tempo2[i+1]-angolo/(2.0*Math.PI));
+						}
+
+						//pivot usato per centrare  la spirale inversa
+						pivotAggiustaMovimento2.add(granelli2[i]);
+						pivotAggiustaMovimento2.position.set(0,6-(3*dimSabbia/2),0);
+
+						//spirale granelli2 inversa
+						granelli2[i].position.set(Math.cos(tempo2[i])*(l/2-p2[i]),posIesimaY2[i],Math.sin(tempo2[i])*(d/2-p2[i]));//-(i*60)
+						posIesimaY2[i] -= gap/(2.0*Math.PI);
+
+						//quando arrivo all'altezzaMassima devo ordinare i granelli2 nella griglia
+						if(posIesimaY2[i]<=dimSabbia){
+							start -= 1;//il primo granello non serve piu contarlo
+							var x = arrayPosGranelli2[i].x;
+							var y = arrayPosGranelli2[i].y;
+							var z = arrayPosGranelli2[i].z;
+							granelli2[i].position.set(x,y-5,z);//dimSabbia
+							if(start==-1){//abilito drirro
+								inverso=false;
+								start= t-1;
+								end = t-1;
+							}
+						}
+						count +=1;
+						}
+					}else{
+						if(end>0){
+						end -=1;}
+						count =0;
+					}
+				 }
+				 else//verso dritto
+				 {
+					if(count<1){
+					for(var i=start;i>=end;i--){
+						if(posIesimaY2[i]<=h/2){
+								p2[i] += (l*gap)/(h*2*Math.PI);
+						}
+						else{
+								p2[i]-=(l*gap)/(h*2*Math.PI);
+								}
+						if(i == start) {
+							tempo2[i] += angolo/(2.0*Math.PI);
+						}else {
+							tempo2[i] = Math.max(0.0, tempo2[i+1]-angolo/(2.0*Math.PI));
+						}
+
+						//pivot usato per centrare  la spirale
+						pivotAggiustaMovimento2.add(granelli2[i]);
+						pivotAggiustaMovimento2.position.set(0,6-(3*dimSabbia/2),0);
+
+						//spirale granelli2
+						granelli2[i].position.set(Math.cos(tempo2[i])*(l/2-p2[i]),posIesimaY2[i],Math.sin(tempo2[i])*(d/2-p2[i]));//-(i*60)
+						posIesimaY2[i] += gap/(2.0*Math.PI);
+
+						//quando arrivo all'altezzaMassima devo orginare i granelli2
+						if(posIesimaY2[i]>=h-dimSabbia){
+							start -= 1;//il primo granello non serve piu contarlo
+							var x = arrayPosGranelli2[i].x;
+							var y = arrayPosGranelli2[i].y;
+							var z = arrayPosGranelli2[i].z;
+							granelli2[i].position.set(x,h-(y-5),z);//dimSabbia
+							if(start==-1){//abilito l'inverso
+								inverso=true;
+								start= t-1;
+								end = t-1;
+							}
+						}
+						count +=1;
+						}
+					}else{
+						if(end>0){
+						end -=1;}
+						count =0;
+					}
+				}
+				 stats.update();
+				 renderer.render(scene, camera);
+		}
+
+
+		Start();
+		Render();
+
+		</script>
+	</body>
+</html>
