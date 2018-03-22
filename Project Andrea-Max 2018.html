@@ -1,93 +1,93 @@
 <html>
-	<head>
-		<title>Stanza dello Spirito e del Tempo</title>
-		<style>
+<head>
+	<title>Stanza dello Spirito e del Tempo</title>
+	<style>
 
-		body {
-			font-family: Monospace;
-			background-color: #f0f0f0;
-			margin: 0px;
-			overflow: hidden;
-		}
+	body {
+		font-family: Monospace;
+		background-color: #f0f0f0;
+		margin: 0px;
+		overflow: hidden;
+	}
 
-		canvas {
-			width: 100%;
-			height: 100%;
-		}
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
 
 	</style>
-		<script src = "lib/three.min.js"></script>
-		<script src = "lib/stats.min.js"></script>
-		<script src = "lib/Coordinates.js"></script>
-		<script src = "lib/OrbitControls.js"></script>
-		<script src = "lib/OBJLoader.js"></script>
+	<script src = "lib/three.min.js"></script>
+	<script src = "lib/stats.min.js"></script>
+	<script src = "lib/Coordinates.js"></script>
+	<script src = "lib/OrbitControls.js"></script>
+	<script src = "lib/OBJLoader.js"></script>
 
-	</head>
-	<body>
+</head>
+<body>
 
-		<script>
+	<script>
 
-		var scene, camera, renderer, controls, stats, gokuBody;
+	var scene, camera, renderer, controls, stats;
 
-		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
-		function getHeightData(img,scale) {
+	//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
+	function getHeightData(img,scale) {
 
-		 if (scale == undefined) scale=1;
+		if (scale == undefined) scale=1;
 
-		    var canvas = document.createElement( 'canvas' );
-		    canvas.width = img.width;
-		    canvas.height = img.height;
-		    var context = canvas.getContext( '2d' );
+		var canvas = document.createElement( 'canvas' );
+		canvas.width = img.width;
+		canvas.height = img.height;
+		var context = canvas.getContext( '2d' );
 
-		    var size = img.width * img.height;
-			console.log(size);
-		    var data = new Float32Array( size );
+		var size = img.width * img.height;
+		console.log(size);
+		var data = new Float32Array( size );
 
-		    context.drawImage(img,0,0);
+		context.drawImage(img,0,0);
 
-		    for ( var i = 0; i < size; i ++ ) {
-		        data[i] = 0
-		    }
-
-		    var imgd = context.getImageData(0, 0, img.width, img.height);
-		    var pix = imgd.data;
-
-		    var j=0;
-		    for (var i = 0; i<pix.length; i +=4) {
-		        var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
-		        data[j++] = scale*all/3;
-		    }
-
-		    return data;
+		for ( var i = 0; i < size; i ++ ) {
+			data[i] = 0
 		}
 
-		function Start() {
-			scene = new THREE.Scene();
-			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-			renderer = new THREE.WebGLRenderer( {antialias: true} );
-			renderer.setSize( window.innerWidth, window.innerHeight );
-			renderer.setClearColor( 0xf0f0f0 );
-			document.body.appendChild( renderer.domElement );
-			camera.position.set(3,4,100);
-			camera.lookAt( new THREE.Vector3(0,0,0));
+		var imgd = context.getImageData(0, 0, img.width, img.height);
+		var pix = imgd.data;
 
-			// Costruzione terreno
-			var geometry = new THREE.PlaneGeometry(10000,10000);
-			var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
-			var terreno = new THREE.Mesh(geometry, material);
+		var j=0;
+		for (var i = 0; i<pix.length; i +=4) {
+			var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
+			data[j++] = scale*all/3;
+		}
 
-			// Creazione Stanza dello Spirito e del Tempo
-			StanzaSpiritoDelTempo = new THREE.Object3D();
+		return data;
+	}
 
-			// Creazione Piano della Stanza dello Spirito e del Tempo
-			TerrenoStanza = new THREE.Object3D();
-			var altezzaPianiTerreno = 3;
-			var basamentoMaxVerticale = 200;
-			var basamentoMinVerticale = 60;
-			var basamentoMaxOrizzontale = 350;
-			var basamentoMinOrizzontale = 100;
-			costruzionePiantaStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMaxVerticale,
-															basamentoMinVerticale, basamentoMaxOrizzontale, basamentoMinOrizzontale);
+	function Start() {
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		renderer = new THREE.WebGLRenderer( {antialias: true} );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setClearColor( 0xf0f0f0 );
+		document.body.appendChild( renderer.domElement );
+		camera.position.set(-90,80,200);
+		camera.lookAt( new THREE.Vector3(0,0,0));
+
+		// Costruzione terreno
+		var geometry = new THREE.PlaneGeometry(10000,10000);
+		var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
+		var terreno = new THREE.Mesh(geometry, material);
+
+		// Creazione Stanza dello Spirito e del Tempo
+		StanzaSpiritoDelTempo = new THREE.Object3D();
+
+		// Creazione Piano della Stanza dello Spirito e del Tempo
+		TerrenoStanza = new THREE.Object3D();
+		var altezzaPianiTerreno = 3;
+		var basamentoMaxVerticale = 200;
+		var basamentoMinVerticale = 60;
+		var basamentoMaxOrizzontale = 350;
+		var basamentoMinOrizzontale = 100;
+		costruzionePiantaStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMaxVerticale,
+			basamentoMinVerticale, basamentoMaxOrizzontale, basamentoMinOrizzontale);
 
 			// Creazione Stanza
 			var Stanza = new THREE.Object3D();
@@ -138,10 +138,12 @@
 			costruzionePalloncino(PalloncinoDx, altezzaPalloncino, moltiplicatoreDimP);
 			PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
-			// Goku
-			aggiungiGoku();
-			var amLight = new THREE.AmbientLight(0xfaffe3, 0.8);
+			// LUCI
+			var amLight = new THREE.AmbientLight(0xffffff, 0.8);
+			amLight.castShadow = true;
+			amLight.recieveShadow = true;
 			var dLight = new THREE.DirectionalLight(0xffffff, 0.1);
+			dLight.targets = StanzaSpiritoDelTempo;
 			//dLight.target = gokuBody;
 			// Gestione scena-pivot
 			StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx);
@@ -170,13 +172,13 @@
 
 		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
 
-		// Piani TerrenoStanza
-		var piantaVerticale = creaPiantaVert(height, basamentoMaxV, basamentoMinV);
-		var piantaOrizzontale = creaPiantaOrizz(height, basamentoMaxO, basamentoMinO);
-		piantaOrizzontale.rotation.set(0,90*Math.PI/180,0);
-		piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
-		obj.add(piantaVerticale, piantaOrizzontale);
-	  }
+			// Piani TerrenoStanza
+			var piantaVerticale = creaPiantaVert(height, basamentoMaxV, basamentoMinV);
+			var piantaOrizzontale = creaPiantaOrizz(height, basamentoMaxO, basamentoMinO);
+			piantaOrizzontale.rotation.set(0,90*Math.PI/180,0);
+			piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
+			obj.add(piantaVerticale, piantaOrizzontale);
+		}
 
 		function creaPiantaVert(h, bM, bm){
 
@@ -210,20 +212,36 @@
 			//crea una clessidra
 			var base = creaBaseClessidra(mul);
 			var tetto = creaBaseClessidra(mul);
+			var punta = creaPuntaClessidra(mul);
 			tetto.rotation.set(180*Math.PI/180,0,0);
 			tetto.position.set(0,altezzaCl,0);
+			punta.position.set(0, altezzaCl + 2,0);
 			var vetro = creaVetroClessidra(mul);
-			pivotClessidra.add(vetro, base, tetto);
+			pivotClessidra.add(vetro, base, tetto, punta);
 		}
 
 		function creaBaseClessidra(m){
 			pivot = new THREE.Object3D();
 			var height = m*1;
 			var basamento = m*3;
-			var colorBase = 0xffd700;
-			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase, "textures/OroClessidra.jpg");
-			var livBase2 = creaQuadrilatero(basamento + m*1,height, basamento + m*1,colorBase, "textures/OroClessidra.jpg");
-			var livBase3 = creaQuadrilatero(basamento + m*2,height,basamento + m*2,colorBase, "textures/OroClessidra.jpg");
+			var colorBase = 0xdaa520; // ORO
+			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase);
+			var livBase2 = creaQuadrilatero(basamento + m*1,height, basamento + m*1,colorBase);
+			var livBase3 = creaQuadrilatero(basamento + m*2,height,basamento + m*2,colorBase);
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			pivot.add(livBase1,livBase2,livBase3);
+			return pivot;
+		}
+
+		function creaPuntaClessidra(m){
+			pivot = new THREE.Object3D();
+			var height = m*(1/2);
+			var basamento = m*2;
+			var colorBase = 0xdaa520; // ORO
+			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase);
+			var livBase2 = creaQuadrilatero(basamento - m*(1/2),height, basamento - m*(1/2),colorBase);
+			var livBase3 = creaQuadrilatero(basamento - m*1,height,basamento - m*1,colorBase);
 			livBase2.position.set(0,height,0);
 			livBase3.position.set(0,2*height,0);
 			pivot.add(livBase1,livBase2,livBase3);
@@ -236,6 +254,7 @@
 			pivotVetroClessidra = new THREE.Object3D();
 			var dimensioneLato = 5;
 			var posizioneVetro = m*5;
+			var opacitaCentro = 0.05;
 			// parte sotto
 			metaClessidra1 = metaVetroClessidra(dimensioneLato, m);
 			// parte sopra
@@ -245,7 +264,7 @@
 			metaClessidra2.position.set(0,3*posizioneVetro,0);
 			metaClessidra2.rotation.set(180*Math.PI/180,0,0);
 			// Parte centrale
-			centroClessidra = creaQuadrilateroTrasparente(m*1,m*1,m*1,0x000000);
+			centroClessidra = creaQuadrilateroTrasparente(m*1,m*1,m*1,0x000000, opacitaCentro);
 			centroClessidra.position.set(0,2*posizioneVetro,0);
 			pivotVetroClessidra.add(metaClessidra1, metaClessidra2, centroClessidra);
 			return pivotVetroClessidra;
@@ -255,9 +274,10 @@
 			pivot = new THREE.Object3D();
 			var altezzaVetri = m*1;
 			var colorBase = 0x000000;
-			var metaVetro = creaQuadrilateroTrasparente(m*l,m*l,m*l,colorBase);
-			var metaVetro1 = creaQuadrilateroTrasparente(m*(l-1), altezzaVetri, m*(l-1),colorBase);
-			var metaVetro2 = creaQuadrilateroTrasparente(m*(l-2), altezzaVetri, m*(l-2),colorBase);
+			var opacitaVetro = 0.05;
+			var metaVetro = creaQuadrilateroTrasparente(m*l,m*l,m*l,colorBase, opacitaVetro);
+			var metaVetro1 = creaQuadrilateroTrasparente(m*(l-1), altezzaVetri, m*(l-1),colorBase, opacitaVetro);
+			var metaVetro2 = creaQuadrilateroTrasparente(m*(l-2), altezzaVetri, m*(l-2),colorBase, opacitaVetro);
 			metaVetro1.position.set(0,m*2 + altezzaVetri,0);
 			metaVetro2.position.set(0,m*2 + 2*altezzaVetri,0);
 			pivot.add(metaVetro, metaVetro1, metaVetro2);
@@ -266,16 +286,16 @@
 
 		function costruzionePalloncino(pivotPalloncino, altezzaP, mul){
 
-				var latoSfera = 5;
-				var baseP = creaBasePalloncino(mul);
-				var tettoP = creaBasePalloncino(mul);
-				var astaP = creaAstaPalloncino(mul, altezzaP);
-				var sfera = creaSfera(mul, latoSfera);
-				tettoP.rotation.set(180*Math.PI/180,0,0);
-				tettoP.position.set(0,altezzaP,0);
-				astaP.position.set(0,altezzaP/2,0);
-				sfera.position.set(0,altezzaP + 1, 0);
-				pivotPalloncino.add(baseP, tettoP, astaP, sfera);
+			var latoSfera = 5;
+			var baseP = creaBasePalloncino(mul);
+			var tettoP = creaBasePalloncino(mul);
+			var astaP = creaAstaPalloncino(mul, altezzaP);
+			var sfera = creaSfera(mul, latoSfera);
+			tettoP.rotation.set(180*Math.PI/180,0,0);
+			tettoP.position.set(0,altezzaP,0);
+			astaP.position.set(0,altezzaP/2,0);
+			sfera.position.set(0,altezzaP + 1, 0);
+			pivotPalloncino.add(baseP, tettoP, astaP, sfera);
 
 		}
 
@@ -284,9 +304,9 @@
 			pivot = new THREE.Object3D();
 			var height = m*1;
 			var basamento = m*2;
-			var colorBase = 0xffd700;
-			var livBaseP1 = creaQuadrilatero(basamento,height,basamento,colorBase, "textures/OroClessidra.jpg");
-			var livBaseP2 = creaQuadrilatero(basamento - m*1,height, basamento - m*1,colorBase, "textures/OroClessidra.jpg");
+			var colorBase = 0xdaa520; // ORO
+			var livBaseP1 = creaQuadrilatero(basamento,height,basamento,colorBase);
+			var livBaseP2 = creaQuadrilatero(basamento - m*1,height, basamento - m*1,colorBase);
 			livBaseP2.position.set(0,height,0);
 			pivot.add(livBaseP1, livBaseP2);
 			return pivot;
@@ -304,7 +324,7 @@
 			var Sphere = new THREE.Object3D();
 			var metaSfera1 = creaMetaSfera(moltiplicatore ,lato);
 			var metaSfera2 = creaMetaSfera(moltiplicatore ,lato);
-			metaSfera2.position.set(0,moltiplicatore*8,0);
+			metaSfera2.position.set(0,moltiplicatore*8 + 1,0);
 			metaSfera2.rotation.set(180*Math.PI/180,0,0);
 			Sphere.add(metaSfera1, metaSfera2);
 			return Sphere;
@@ -313,12 +333,13 @@
 		function creaMetaSfera(m, lato){
 			pivotPalla = new THREE.Object3D();
 			var height = m*1;
-			var colorBase = 0x0000ff;
-			var livBase1 = creaQuadrilatero(m*lato, height, m*lato,colorBase,"textures/Blu-Texture.jpg");
-			var livBase2 = creaQuadrilatero(m*lato + m*1,height, m*lato + m*1,colorBase, "textures/Blu-Texture.jpg");
-			var livBase3 = creaQuadrilatero(m*lato + m*2,height,m*lato + m*2,colorBase, "textures/Blu-Texture.jpg");
-			var livBase4 = creaQuadrilatero(m*lato + m*3,height,m*lato + m*3,colorBase, "textures/Blu-Texture.jpg");
-			var livBase5 = creaQuadrilatero(m*lato + m*4,height,m*lato + m*4,colorBase, "textures/Blu-Texture.jpg");
+			var opacitaPalloncino = 0.7;
+			var colorBase = 0x00008b; // BLU
+			var livBase1 = creaQuadrilateroTrasparente(m*lato, height, m*lato,colorBase, opacitaPalloncino);
+			var livBase2 = creaQuadrilateroTrasparente(m*lato + m*1,height, m*lato + m*1,colorBase, opacitaPalloncino);
+			var livBase3 = creaQuadrilateroTrasparente(m*lato + m*2,height,m*lato + m*2,colorBase, opacitaPalloncino);
+			var livBase4 = creaQuadrilateroTrasparente(m*lato + m*3,height,m*lato + m*3,colorBase, opacitaPalloncino);
+			var livBase5 = creaQuadrilateroTrasparente(m*lato + m*4,height,m*lato + m*4,colorBase, opacitaPalloncino);
 			livBase2.position.set(0,height,0);
 			livBase3.position.set(0,2*height,0);
 			livBase4.position.set(0,3*height,0);
@@ -344,7 +365,7 @@
 			var j = 0;
 			while( j < 15){
 				while( i < 360*Math.PI/180){
-					var basamentoCupola = creaQuadrilatero(2*m*lato, height, m*lato, 0x000000, "textures/OroClessidra.jpg");
+					var basamentoCupola = creaQuadrilatero(2*m*lato, height, m*lato, 0xdaa520);
 					basamentoCupola.position.set(Math.cos(i)*(braccio-j),j,-(Math.sin(i)*(braccio-j)));
 					cupola.add(basamentoCupola);
 					i += 15*Math.PI/180;
@@ -360,24 +381,24 @@
 			var i = -15*Math.PI/180;
 			var colorSup = 0xdcdcdc;
 			while(i < 195*Math.PI/180){
-					var colonna = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
-					colonna.position.set(Math.cos(i)*(braccio + cup),0,-(Math.sin(i)*(braccio + cup)));
-					superficie.add(colonna);
-					i += 2*Math.PI/180;
+				var colonna = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+				colonna.position.set(Math.cos(i)*(braccio + cup),0,-(Math.sin(i)*(braccio + cup)));
+				superficie.add(colonna);
+				i += 2*Math.PI/180;
 			}
 
 			var j = 0*Math.PI/180;
 			while(j < 360*Math.PI/180){
-					var bordo = creaQuadrilatero(2*m*lato, 2*m*lato, m*lato,colorSup);
-					bordo.position.set(Math.cos(j)*(braccio + cup),hS/2,-(Math.sin(j)*(braccio + cup)));
-					superficie.add(bordo);
-					j += 2*Math.PI/180;
+				var bordo = creaQuadrilatero(2*m*lato, 2*m*lato, m*lato,colorSup);
+				bordo.position.set(Math.cos(j)*(braccio + cup),hS/2,-(Math.sin(j)*(braccio + cup)));
+				superficie.add(bordo);
+				j += 2*Math.PI/180;
 			}
 
 			// Colonnine frontali separate dalle altre
-			var colonna1 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+			var colonna1 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup, "textures/terrenoStanza2.jpg");
 			colonna1.position.set(Math.cos(220*Math.PI/180)*(braccio + cup),0,-(Math.sin(220*Math.PI/180)*(braccio + cup)));
-			var colonna2 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+			var colonna2 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup, "textures/terrenoStanza2.jpg");
 			colonna2.position.set(Math.cos(-50*Math.PI/180)*(braccio + cup),0,-(Math.sin(-50*Math.PI/180)*(braccio + cup)));
 			superficie.add(colonna1, colonna2);
 			return superficie;
@@ -386,7 +407,7 @@
 		function costruzioneCamera(camera, larghCamera, hCamera, pCamera){
 
 			var colorSup = 0xdcdcdc;
-			var cuboCamera = creaQuadrilatero(larghCamera, hCamera, pCamera,colorSup);
+			var cuboCamera = creaQuadrilatero(larghCamera, hCamera, pCamera,colorSup, "textures/terrenoStanza2.jpg");
 			var tetto = new THREE.Object3D();
 			costruzioneTetto(tetto, larghCamera, pCamera);
 			tetto.position.set(0,hCamera/2 + 2,0);
@@ -396,105 +417,35 @@
 
 		function costruzioneTetto(tetto, largh, prof){
 			var heightT = 2;
-			var coloreTetto = 0xff0000;
+			var coloreTetto = 0xb22222;
 			for(var i = 0; i < 3; i++){
-				var baseTetto = creaQuadrilatero(largh-(i*3),heightT,prof-(i*3), coloreTetto, "textures/tetto.jpg" );
+				var baseTetto = creaQuadrilatero(largh-(i*3),heightT,prof-(i*3), coloreTetto );
 				baseTetto.position.set(0,heightT*i,0);
 				tetto.add(baseTetto);
 			}
 		}
-
-		function aggiungiGoku(){
-
-			var manager = new THREE.LoadingManager();
-	    var loader = new THREE.ImageLoader(manager);
-
-			// Texture shirt
-			var shirtTexture = new THREE.Texture();
-	    loader.load('textures/Goku/shirt.png', function (image){
-				shirtTexture.image = image;
-				shirtTexture.needsUpdate = true;
-	    });
-
-			// Texture hair
-			var hairTexture = new THREE.Texture();
-			loader.load('textures/Goku/hair.png', function (image){
-				hairTexture.image = image;
-				hairTexture.needsUpdate = true;
-			});
-
-			// Texture pants
-			var pantsTexture = new THREE.Texture();
-			loader.load('textures/Goku/pants.png', function (image){
-				pantsTexture.image = image;
-				pantsTexture.needsUpdate = true;
-			});
-
-			// Texture eyes
-			var eyesTexture = new THREE.Texture();
-			loader.load('textures/Goku/eyes.png', function (image){
-				eyesTexture.image = image;
-				eyesTexture.needsUpdate = true;
-			});
-
-			// Texture face
-			var faceTexture = new THREE.Texture();
-			loader.load('textures/Goku/face.png', function (image){
-				faceTexture.image = image;
-				faceTexture.needsUpdate = true;
-			});
-
-			var meshes = [];
-			var objLoader = new THREE.OBJLoader();
-
-			objLoader.load('textures/Goku/Goku.obj', function ( object ){
-				object.traverse( function (child) {
-					if( child instanceof THREE.Mesh )
-					{
-						meshes.push(child);
-					}
-				});
-
-				var Goku = new THREE.Object3D();
-				gokuPants = meshes[0];
-				gokuShirt = meshes[1];
-				gokuFace = meshes[2];
-				gokuEyes = meshes[3];
-				gokuHair = meshes[4];
-				Goku.add(gokuPants, gokuShirt, gokuFace, gokuEyes, gokuHair);
-				scene.add(Goku);
-				Goku.position.set(0,8,-50);
-				Goku.scale.set(1/2,1/2,1/2);
-
-				gokuPants.material = new THREE.MeshPhongMaterial({map: pantsTexture});
-				gokuShirt.material = new THREE.MeshPhongMaterial({map: shirtTexture});
-				gokuFace.material = new THREE.MeshPhongMaterial({map: faceTexture});
-				gokuEyes.material = new THREE.MeshPhongMaterial({map: eyesTexture});
-				gokuHair.material = new THREE.MeshPhongMaterial({map: hairTexture});
-			});
-	  }
 
 		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
 			// Costruzione plane generico
 			var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
 			//
 			if(image == undefined){
-			var planeMaterial = new THREE.MeshBasicMaterial( { color: colore } );
-			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
-		} else {
-			var texture = new THREE.TextureLoader().load( image );
-			var planeMaterial = new THREE.MeshBasicMaterial( { map: texture } );
-			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
-		}
+				var planeMaterial = new THREE.MeshPhongMaterial( { color: colore } );
+				var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			} else {
+				var texture = new THREE.TextureLoader().load( image );
+				var planeMaterial = new THREE.MeshPhongMaterial( { map: texture } );
+				var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			}
 			return plane;
 		}
 
-		function creaQuadrilateroTrasparente(larghezza, altezza, profondita, colore){
+		function creaQuadrilateroTrasparente(larghezza, altezza, profondita, colore, opacita){
 			// Costruzione plane generico
 			var geometryPlane = new THREE.BoxGeometry(larghezza, altezza, profondita);
-			var planeMaterial = new THREE.MeshBasicMaterial( { color: colore, transparent: true, opacity:0.05 } );
+			var planeMaterial = new THREE.MeshPhongMaterial( { color: colore, transparent: true, opacity:opacita} );
 			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
-			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			//var plane = new THREE.Mesh( geometryPlane, planeMaterial );
 			return plane;
 		}
 
@@ -515,4 +466,4 @@
 
 		</script>
 	</body>
-</html>
+	</html>

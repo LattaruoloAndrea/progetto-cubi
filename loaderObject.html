@@ -26,7 +26,7 @@
 <body>
   <script>
 
-  var scene, camera, renderer, controls, object;
+  var scene, camera, renderer, controls, goku;
 
   function Start() {
     scene = new THREE.Scene();
@@ -40,8 +40,9 @@
 
 
     aggiungiGoku();
-    var light = new THREE.DirectionalLight();
-    scene.add(light);
+    var amLight = new THREE.AmbientLight(0xffffff, 0.7);
+    var light = new THREE.DirectionalLight(0xffffff, 1);
+    scene.add(light, amLight);
     controls = new THREE.OrbitControls( camera );
     controls.addEventListener( 'change', Render );
   }
@@ -54,10 +55,30 @@
 
   function aggiungiGoku(){
 
-    var loader = new THREE.OBJLoader();
+    var manager = new THREE.LoadingManager();
+    var loader = new THREE.ImageLoader(manager);
 
-    loader.load('textures/Goku/Goku.obj', function (object){
-      scene.add(object);
+    // Texture shirt
+    var texture = new THREE.Texture();
+    loader.load('textures/Goku/Goku.png', function (image){
+      texture.image = image;
+      texture.needsUpdate = true;
+    });
+
+    var meshes = [];
+    var objLoader = new THREE.OBJLoader();
+
+    objLoader.load('textures/Goku/Goku.obj', function ( object ){
+      object.traverse( function (child) {
+        if( child instanceof THREE.Mesh )
+        {
+          meshes.push(child);
+        }
+      });
+
+      goku = meshes[0];
+      scene.add(goku);
+      goku.material = new THREE.MeshPhongMaterial({map: texture});
     });
   }
 
