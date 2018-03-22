@@ -115,7 +115,7 @@
 			// Creazione clessidre
 			// Clessidra Sinistra
 			ClessidraSx = new THREE.Object3D();
-			var moltiplicatoreDim = 2;
+			var moltiplicatoreDim = 3;
 			var altezzaClessidra = moltiplicatoreDim * 20;
 			costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim);
 			ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
@@ -363,7 +363,8 @@
 			var height = 3;
 			var i = 0*Math.PI/180;
 			var j = 0;
-			while( j < 15){
+			var valoreMax = 15;
+			while( j < valoreMax){
 				while( i < 360*Math.PI/180){
 					var basamentoCupola = creaQuadrilatero(2*m*lato, height, m*lato, 0xdaa520);
 					basamentoCupola.position.set(Math.cos(i)*(braccio-j),j,-(Math.sin(i)*(braccio-j)));
@@ -373,6 +374,11 @@
 				j += height;
 				i = 0*Math.PI/180;
 			}
+
+			// Parte superiore: chiusra cupola + pallocino
+			var chiusuraCupola = creaQuadrilatero(DimbasamentoCupola - (valoreMax + 3*lato), height, DimbasamentoCupola - (valoreMax + 3*lato), 0xdaa520);
+			chiusuraCupola.position.set(0,valoreMax,0);
+			cupola.add(chiusuraCupola);
 			return cupola;
 		}
 
