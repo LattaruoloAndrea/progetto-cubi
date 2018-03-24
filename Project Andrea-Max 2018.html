@@ -29,7 +29,7 @@
 
 	var scene, camera, renderer, controls, stats;
 	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx;
-	var dimSabbia=0.5;
+	var dimSabbia=0.7;
 	var gap = 0.9,angolo = 2.0;
 
 	//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
@@ -121,13 +121,13 @@
 			classeClessidraSx = new clessidraClass();
 			var moltiplicatoreDim = 3;
 			var altezzaClessidra = moltiplicatoreDim * 20;
-			costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim,0xff0000,classeClessidraSx);
+			costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim,0x32cd32,classeClessidraSx);
 			ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
 			// Clessidra Destra
 			ClessidraDx = new THREE.Object3D();
 			classeClessidraDx = new clessidraClass();
-			costruzioneClessidra(ClessidraDx, altezzaClessidra, moltiplicatoreDim,0xff0000,classeClessidraDx);
+			costruzioneClessidra(ClessidraDx, altezzaClessidra, moltiplicatoreDim,0x32cd32,classeClessidraDx);
 			ClessidraDx.rotation.set(180*Math.PI/180,0,0);
 			ClessidraDx.position.set(-(basamentoMaxOrizzontale/2 - 40), 3*altezzaPianiTerreno+altezzaClessidra, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
@@ -247,7 +247,8 @@
 			var materialeGranello;
 			var numGranello = 0;
 			var grane = [];
-			var xD=-dimBase*mul/2+5*dimSabbia/2,yD=6-1+dimSabbia/2,zD=-dimBase*mul/2+5*dimSabbia/2;//-dimSabbia
+			var xD =-larghezza*dimSabbia/2+dimSabbia/2,yD=6-1+dimSabbia/2,zD=-larghezza*dimSabbia/2+dimSabbia/2;
+			//var xD=-dimBase*larghezza/2,yD=6-1+dimSabbia/2,zD=-dimBase*larghezza/2;//-dimSabbia
 			for(var i=0;i<altezza;i++){
 				for(var j=0;j<larghezza;j++){
 					for(var k=0;k<profondita;k++){
@@ -258,10 +259,10 @@
 						numGranello += 1;
 						xD += dimSabbia;
 					}
-					xD=-dimBase*mul/2+5*dimSabbia/2;
+					xD=-larghezza*dimSabbia/2+dimSabbia/2;
 					zD +=dimSabbia;
 				}
-				zD=-dimBase*mul/2+5*dimSabbia/2;
+				zD=-larghezza*dimSabbia/2+dimSabbia/2;
 				yD+=dimSabbia;
 			}
 			return grane;
@@ -289,11 +290,11 @@
 			tetto.rotation.set(180*Math.PI/180,0,0);
 			tetto.position.set(0,altezzaCl,0);
 			var vetro = creaVetroClessidra(mul);
-			var hh = 2;
-			var ll = mul*4/dimSabbia;
-			var dd = mul*4/dimSabbia;
+			var hh = 3;
+			var ll = 7;
+			var dd = 7;
 			var granelli = [],arrayPosGrane = [],posY=[],tempo = [],pEll =[];
-			granelli = sabbia(ll,hh,dd,5,colSabbia,mul,arrayPosGrane);
+			granelli = sabbia(ll,hh,dd,l-1,colSabbia,mul,arrayPosGrane);
 			initializeClessidraClass(clessClass,arrayPosGrane,granelli.length,mul);
 			var pivotGranelli = new THREE.Object3D();
 			for(var i=0;i<granelli.length;i++){
@@ -577,7 +578,7 @@
 					 var y = classeCl.arrayPosizioni[i].y;
 					 var z = classeCl.arrayPosizioni[i].z;
 					 clessidra.children[3].children[i].position.set(x,y,z);//dimSabbia
-					 if(classeCl.startt==-1){//abilito drirro
+					 if(classeCl.startt==-1){//abilito dritto
 						 classeCl.inverso=false;
 						 classeCl.startt= classeCl.arrayPosizioni.length-1;
 						 classeCl.end = classeCl.arrayPosizioni.length-1;
@@ -617,7 +618,7 @@
 				 if(classeCl.posIesimaY[i]>=classeCl.h-dimSabbia){
 					 classeCl.startt -= 1;//il primo granello non serve piu contarlo
 					 var x = classeCl.arrayPosizioni[i].x;
-					 var y = classeCl.arrayPosizioni[i].y;
+					 var y = classeCl.arrayPosizioni[i].y-dimSabbia;
 					 var z = classeCl.arrayPosizioni[i].z;
 					 clessidra.children[3].children[i].position.set(x,classeCl.h+y-2*dimSabbia,z);//dimSabbia
 					 if(classeCl.startt==-1){//abilito l'inverso
