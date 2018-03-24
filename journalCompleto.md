@@ -18,4 +18,5 @@ giorno # finalmente siamo riusciti a caricare le clessidre con l'animazione. Mol
 Alla fine una pulizia del codice è stata necessaria per rendere più chiaro cosa bisognasse fare.
 Dopo la pulizia comunque quando provavo ad aggiungere una clessidra in piu e fare l animazione su entrame le clessidre una sorta di bug grafico usciva perche le due clessidre condividevano una variabile ("count" inizialmente pensata per ridurre ed aumentare la velocita della serpentina nella clessidra) dopo che la variabile count e stata legata ad ogni clessidra ogni problema è stato risolto.
 Il merging dei due file dopo la pulizia di quello singolo non è stato troppo complicato  un copia incolla un po generale e il risultato andava.
+-alla fine abiamo ridotto il numero dei granelli all'interno delle clesside per avere una fluibilità migliore della scena.
 #### costruzione palloncini
