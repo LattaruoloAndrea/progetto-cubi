@@ -40,7 +40,7 @@
 			camera.lookAt( new THREE.Vector3(0,0,0));
 
       sferaG = creaQuadrilateroTrasparente(lato,lato,lato, 0x00bfff,0.3);
-      var lightG = new THREE.AmbientLight(0x00bfff, 1 );
+      var lightG = new THREE.AmbientLight(0xffffff, 1 );
 			scene.add( sferaG, lightG );
 
 			stats = new Stats();
@@ -76,6 +76,7 @@
     if(lato< 50){
     lato += 0.01;
     sferaG.scale.set(lato,lato,lato);
+		console.log(sferaG.position.x,sferaG.position.y,sferaG.position.z);
   }
 
     renderer.render(scene, camera);
