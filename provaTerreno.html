@@ -38,7 +38,7 @@
 		    var context = canvas.getContext( '2d' );
 
 		    var size = img.width * img.height;
-			console.log(size);
+			  console.log(size);
 		    var data = new Float32Array( size );
 
 		    context.drawImage(img,0,0);
@@ -68,7 +68,7 @@
 			renderer.setClearColor( 0xf0f0f0 );
 			document.body.appendChild( renderer.domElement );
 
-			camera.position.set(0,260,120);
+			camera.position.set(0,0,20);
 			camera.lookAt( new THREE.Vector3(0,0,0));
 
 			stats = new Stats();
@@ -77,8 +77,8 @@
 			document.body.appendChild( stats.domElement );
 
 			//light
-			light = new THREE.DirectionalLight( 0xffffff, 1,0 );
-			light.position.set(-120,500,0);
+			light = new THREE.AmbientLight( 0xffffff, 1,0 );
+			//light.position.set(-120,500,0);
 			light.castShadow = false;
 			scene.add(light);
 
@@ -89,7 +89,6 @@
 			controls.addEventListener( 'change', Render );
 
 			terreno = new THREE.Object3D();
-			// terrain
 
 			var img = new Image();
 			img.onload = function () {
@@ -104,45 +103,36 @@
 
 		}
 
-		function createTerrain(larghezza,altezza,profondita,arrayAltezze,image){
+		function createTerrain(larghezza, altezza, profondita, arrayAltezze, image){
 
-			var material;
-			var positionX = 0;
-			var positionZ = 0;
-			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
+			// var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
+      var pX = 0, pY = 0, pZ = 0;
+      var color = 0x412000;
 			var texture = new THREE.TextureLoader().load( image );
 
-			for(var i = 0;i < arrayAltezze.length; i++){//
-				if(image == undefined){
-						material = new THREE.MeshLambertMaterial({color:0Xa0522d});
-						//colre marroncino
-				}
-				else{
+      // for(var  i = 0; i < 60; i++){
 
-					texture.repeat.set(1,1);
-					material = new THREE.MeshLambertMaterial({map:texture});
-				}
-				var cubeGeometry = new THREE.BoxBufferGeometry(larghezza,arrayAltezze[i],profondita);
-				var cube = new THREE.Mesh(cubeGeometry,material);
-				cube.castShadow = false;
-				cube.receiveShadow = true;
-				cube.position.set(positionX,arrayAltezze[i]/2,positionZ);
-				terreno.add(cube);
-				if(positionX + larghezza < lato*larghezza){
-					positionX += larghezza;
-				}
-				else{
-					positionX = 0;
-					if(positionZ + profondita < lato*profondita){
-						positionZ += profondita;
-					}
-					else{
-						positionZ = 0;
-					}
-				}
+        var cuboTerreno = creaQuadrilatero(larghezza, altezza, profondita, color);
+        cuboTerreno.position.set(pX, pY, pZ);
+        console.log("Sono dentro il for");
+        terreno.add(cuboTerreno);
+        pX += larghezza;
+      //}
+    }
+
+    function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
+			// Costruzione plane generico
+			var geometryPlane = new THREE.BoxBufferGeometry(larghezza, altezza, profondita);
+			//
+			if(image == undefined){
+				var planeMaterial = new THREE.MeshPhongMaterial( { color: colore } );
+				var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			} else {
+				var texture = new THREE.TextureLoader().load( image );
+				var planeMaterial = new THREE.MeshPhongMaterial( { map: texture } );
+				var plane = new THREE.Mesh( geometryPlane, planeMaterial );
 			}
-
-			terreno.position.set(-lato/2,0,-lato/2);
+			return plane;
 		}
 
 		function Update() {
@@ -153,13 +143,5 @@
 		}
 
 		function Render() {
-
 			renderer.render(scene, camera);
 		}
-
-		Start();
-		Update();
-
-		</script>
-	</body>
-</html>

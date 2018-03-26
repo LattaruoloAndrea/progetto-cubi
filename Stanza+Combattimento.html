@@ -89,7 +89,6 @@
 
 		// LUCI
 		var amLight = new THREE.AmbientLight(0xffffff, 1);
-
 			scene.add( StanzaSpiritoDelTempo, amLight);
 
 			stats = new Stats();
@@ -520,7 +519,7 @@
 			colonna2.position.set(Math.cos(-50*Math.PI/180)*(braccio + cup),0,-(Math.sin(-50*Math.PI/180)*(braccio + cup)));
 
 			// Porta
-			var porta = creaQuadrilatero(hS/2, hS*(2/3) - 1, m*lato,colorSup, "textures/porta.jpg");
+			var porta = creaQuadrilatero(hS/2, hS*(2/3) - 1, m*lato,0x412000);
 			porta.position.set(0,- hS*(1/6),-(braccio + cup - m*lato));
 
 			// Orologio
@@ -709,7 +708,6 @@
 			var randomRotation = Math.random()*360*Math.PI/180;
 
 			if (statoCombattimento == -1){
-				posizionamentoCamera1(camera);
 				tempoF = tempoF + secondo;
 
 				tempoCombattimento = tempoCombattimento + secondo;
@@ -756,7 +754,6 @@
 				}}
 
 				if(statoCombattimento == 1 && Goku.position.x > -150 && Vegeta.position.x < 100){
-					posizionamentoCamera2(camera);
 					Goku.position.x -= 0.5;
 					Goku.position.y += 0.1;
 					Vegeta.position.x += 0.5;
@@ -768,6 +765,7 @@
 						Goku.children[5].position.y += 2;    // AncoraBraccioSx
 						Vegeta.children[4].rotation.z = -90*Math.PI/180;
 						Vegeta.children[5].rotation.z = 90*Math.PI/180;
+						Vegeta.children[4].position.x -= 2;
 
 						statoCombattimento = 2;
 						Vegeta.children[4].add(finalFlash1);
@@ -779,35 +777,61 @@
 				}}
 
 				if(statoCombattimento == 2){
-					if(latoGenkidama < 100 && latoF < 12){
-						posizionamentoCamera2(camera);
-						latoGenkidama += 0.1;
+					var crescitaSfere = 0.1;
+					var latoFinale = 80;
+					if(latoGenkidama < latoFinale && latoF < 12){
+						latoGenkidama += crescitaSfere;
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
-						latoF += 0.01;
+						latoF += crescitaSfere/10;
 						finalFlash1.scale.set(latoF,latoF,latoF);
 						finalFlash2.scale.set(latoF,latoF,latoF);
-						if(latoGenkidama >= 100){
+						if(latoGenkidama >= latoFinale){
 							statoCombattimento = 3;
 							Vegeta.children[4].rotation.z = 0*Math.PI/180;
 							Vegeta.children[5].rotation.z = 0*Math.PI/180;
 							Vegeta.children[4].rotation.set(45*Math.PI/180,0,0*Math.PI/180);
 							Vegeta.children[5].rotation.set (45*Math.PI/180,0,0*Math.PI/180);
+							Goku.children[4].position.y -= 2;    // AncoraBraccioDx
+							Goku.children[5].position.y -= 2;    // AncoraBraccioSx
 							latoFinalFlash = latoF;
 						}
 					}}
 
+					var crescitaFinalFlash = 0.25;
 					// Fase combattimento lancio sfere
 				if(statoCombattimento == 3){
+					var extra = 60;
 
-					if(sferaG.position.y > (Vegeta.position.y + 60)) {
-						sferaG.position.y -= 0.20;
-						sferaG.position.z += 0.1;
-						latoFinalFlash += 0.25;
+					var grow = 0.25;
+					if(sferaG.position.y > (Vegeta.position.y + extra)) {
+						sferaG.position.y -= 0.2;
+						sferaG.position.z += 0.2;
+						if(sferaG.position.y > (Vegeta.position.y + extra + extra/2)){
+							Goku.children[4].rotation.x = 90*Math.PI/180;    // AncoraBraccioDx
+							Goku.children[5].rotation.x = 135*Math.PI/180;    // AncoraBraccioSx
+						}
+						latoFinalFlash += grow;
 						finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
 						finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
-						finalFlash1.position.y += 0.10;
-						finalFlash2.position.y += 0.10;
+						finalFlash1.position.y += grow/3;
+						finalFlash2.position.y += grow/3;
+
+						if(sferaG.position.y <= (Vegeta.position.y + extra)){
+							statoCombattimento = 4;
+							
+						}
 					}
+				}
+
+				// Onde incrociate, lentamente la sfera Genkidama deve "surclussare" il final Flash
+				if(statoCombattimento == 4){
+					sferaG.position.y -= 0.2;
+					sferaG.position.z += 0.2;
+					latoFinalFlash -= grow;
+					finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
+					finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
+					finalFlash1.position.y -= grow/3;
+					finalFlash2.position.y -= grow/3;
 				}
 		}
 
@@ -900,18 +924,6 @@
 				 classeCl.count =0;
 			 }
 		 }
-		}
-
-		function posizionamentoCamera1(cam){
-
-			cam.position.set(-50, 150, 200);
-			cam.rotation.set(-30*Math.PI/180,0,0);
-		}
-
-		function posizionamentoCamera2(cam){
-
-			cam.position.set(-50, 250, 250);
-			cam.rotation.set(-30*Math.PI/180,-10*Math.PI/180,0);
 		}
 
 		function Update() {
