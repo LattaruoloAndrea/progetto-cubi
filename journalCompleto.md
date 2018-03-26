@@ -25,3 +25,8 @@ Il terreno è stato costruito partendo dal codice fornito. E' stata aggiunta una
 L altezza delle colonne corrisponde al colore dell'immagine in scala di grigi fornita. 
 E' stato necessario spostare la riga di codice "img.src = "textures/heightmap2.png";" fuori dalla procedura img.onload = function() perchè sennò non era possibile caricare il terreno. 
 #### costruzione palloncini
+
+
+#### Animazione Sfera Genkidama
+Abbiamo riprodotto la sfera genkidama che pian piano si ingrandisce (attraverso uno scale), per renderla simile a quella reale abbiamo fatto in modo da far veicolare delle mini sfere di energia verso il centro della sfera.
+Le sfere una volta arrivate nel centro vengono spostate in una posizione esterna (al posto di eliminare ogni sfera e crearne una nuova). Alla fine dell' "ingrandimento" della sfera genkidama queste sfere di energia vengono rimosso dalla scena.

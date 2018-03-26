@@ -31,10 +31,11 @@
 	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx;
 	var dimSabbia = 2;
 	var gap = 1,angolo = 2.0;
-	var Goku, Vegeta, arena, sferaG, finalFlash1, finalFlash2, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
+	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG, finalFlash1, finalFlash2, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
 	var valoreDiSpostamentoBraccioDX = 0, valoreDiSpostamentoBraccioSx = 2, statoBraccio = 0;
 	var tempoR = 0, tempoC = 0, tempoF = 0, secondo = 1, tempoCombattimento = 0;
 	var statoRotazione = 0, statoTeletrasporto = 0, statoCombattimento = -1;
+	var creaEnergia = true,numEner=40;
 
 	//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 	function getHeightData(img,scale) {
@@ -177,6 +178,8 @@
 
 				Goku = new THREE.Object3D();
 				Vegeta = new THREE.Object3D();
+				pivotSferaG = new THREE.Object3D();
+				pivotEnergie = new THREE.Object3D();
 				var moltiplicatoreDimPersonaggio = 1;
 				creaPersonaggio(Goku, "textures/Goku/shirt.png", "textures/Goku/pants.png", moltiplicatoreDimPersonaggio);
 				creaPersonaggio(Vegeta, "textures/Vegeta/corpo.png", "textures/Vegeta/gambe.png", moltiplicatoreDimPersonaggio);
@@ -771,14 +774,25 @@
 						Vegeta.children[5].add(finalFlash2);
 						finalFlash1.position.set(0,15,0);
 						finalFlash2.position.set(0,15,0);
-						Goku.add(sferaG);
-						sferaG.position.set(0,100,0);
+						pivotSferaG.add(pivotEnergie,sferaG);
+						Goku.add(pivotSferaG);
+						pivotSferaG.position.set(0,100,0);
 				}}
 
 				if(statoCombattimento == 2){
 					var crescitaSfere = 0.1;
 					var latoFinale = 80;
 					if(latoGenkidama < latoFinale && latoF < 12){
+						if(latoGenkidama<latoFinale-1 && latoF < 12-1){
+							//metto le energie
+							energiaSferaGenkidama(pivotSferaG.children[0],latoGenkidama,0.1,numEner);
+						}else{
+							//rimuovo le energie
+							if(pivotSferaG.children[0].children[0]!=undefined)
+								for(var i=0;i<numEner;i++)
+									pivotSferaG.children[0].remove(pivotSferaG.children[0].children[i]);
+						}
+						latoGenkidama += 0.1;
 						latoGenkidama += crescitaSfere;
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
 						latoF += crescitaSfere/10;
@@ -794,8 +808,8 @@
 							Goku.children[5].position.y -= 2;    // AncoraBraccioSx
 							latoFinalFlash = latoF;
 						}
-					}}
-
+					}
+				}
 					var crescitaFinalFlash = 0.25;
 					// Fase combattimento lancio sfere
 				if(statoCombattimento == 3){
@@ -833,6 +847,101 @@
 					finalFlash2.position.y -= grow/3;
 				}
 		}
+
+		function energiaSferaGenkidama(pivotGenkidama,ray,velocitaEnergia,numEnergie){
+			if(creaEnergia){
+				creaEnergia = false;
+				var dim = 1;
+				for(var i=0;i<numEnergie;i++){
+					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
+					var segnoX=1,segnoY=1,segnoZ=1;
+					if(Math.random()<0.5){
+						segnoX=-1;
+					}
+					var segnoY=1;
+					if(Math.random()<0.5){
+						segnoY=-1;
+					}
+					var segnoZ=1;
+					if(Math.random()<0.5){
+						segnoZ=-1;
+					}
+					energia.position.set(segnoX*randomMultipl(velocitaEnergia)*4*ray,
+								 segnoY*randomMultipl(velocitaEnergia)*4*ray,
+								 segnoZ*randomMultipl(velocitaEnergia)*4*ray);
+					pivotGenkidama.add(energia);
+				}
+			}
+			else{
+				//sposto le energie
+				for(var i=0;i<numEnergie;i++){
+					if(pivotGenkidama.position.x< pivotGenkidama.children[i].position.x){
+						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x-velocitaEnergia;
+					}
+					else if(pivotGenkidama.position.x == Math.trunc(pivotGenkidama.children[i].position.x)){
+						pivotGenkidama.children[i].position.x=pivotGenkidama.position.x;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x+velocitaEnergia;
+					}
+					if(pivotGenkidama.position.y< pivotGenkidama.children[i].position.y ){
+						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y-velocitaEnergia;
+					}
+					else if(pivotGenkidama.position.y == Math.trunc(pivotGenkidama.children[i].position.y)){
+						pivotGenkidama.children[i].position.y=pivotGenkidama.position.y;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y+velocitaEnergia;
+					}
+					if(pivotGenkidama.position.z< pivotGenkidama.children[i].position.z ){
+						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z-velocitaEnergia;
+					}
+					else if(pivotGenkidama.position.z == Math.trunc(pivotGenkidama.children[i].position.z)){
+						pivotGenkidama.children[i].position.z=pivotGenkidama.position.z;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z+velocitaEnergia;
+					}
+					if(pivotGenkidama.position.x == pivotGenkidama.children[i].position.x &&
+						pivotGenkidama.position.y == pivotGenkidama.children[i].position.y &&
+						pivotGenkidama.position.z == pivotGenkidama.children[i].position.z){
+							segnoX =1;
+							segnoY =1;
+							segnoZ =1;
+							if(Math.random()<0.5){
+								segnoX=-1;
+							}
+							var segnoY=1;
+							if(Math.random()<0.5){
+								segnoY=-1;
+							}
+							var segnoZ=1;
+							if(Math.random()<0.5){
+								segnoZ=-1;
+							}
+							pivotGenkidama.children[i].position.set(segnoX*randomMultipl(velocitaEnergia)*2*ray,
+																											segnoY*randomMultipl(velocitaEnergia)*2*ray,
+																											segnoZ*randomMultipl(velocitaEnergia)*2*ray);
+							}
+				}
+			}
+		}
+
+		function randomMultipl(n){
+			// n<1 n>0
+			//ritorna un numero casuale multiplo di n compreso tra 0-1
+			var peso = n;
+			var numCas=Math.trunc(Math.random()*100)/100;
+			var value = 0;
+			while(value<numCas){
+				value+=peso;
+			}
+			return value;
+		}
+
 
 		function rendererClessidra(clessidra,classeCl){
 			//clessidra = oggetto 3D classeCl = classeclessidra
