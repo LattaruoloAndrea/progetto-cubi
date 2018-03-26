@@ -68,7 +68,7 @@
 			renderer.setClearColor( 0xf0f0f0 );
 			document.body.appendChild( renderer.domElement );
 
-			camera.position.set(0,120,120);
+			camera.position.set(0,260,120);
 			camera.lookAt( new THREE.Vector3(0,0,0));
 
 			stats = new Stats();
@@ -76,8 +76,14 @@
 			stats.domElement.style.top = '0px';
 			document.body.appendChild( stats.domElement );
 
+			//light
+			light = new THREE.PointLight( 0xffffff, 1,0 );
+			light.position.set(-120,500,0);
+			light.castShadow =true;
+			scene.add(light);
+
 			// uncomment if you need to draw coordinate axes when building the scene
-			Coordinates.drawAllAxes();
+			//Coordinates.drawAllAxes();
 
 			controls = new THREE.OrbitControls( camera );
 			controls.addEventListener( 'change', Render );
@@ -90,10 +96,8 @@
 
 				//get height data from img
 				var data = getHeightData(img);
-				console.log("data1 ",data);
 				terreno =createTerrain(1,1,1,data,"textures/11635.jpg");
 				scene.add(terreno);
-				console.log("terreno childre, ",terreno.children.length);
 			}
 			// load img source
 			img.src = "textures/heightmap2.png";
@@ -106,24 +110,23 @@
 			var positionX = 0;
 			var positionZ = 0;
 			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
-			console.log("PIXEL ",arrayAltezze.length);
-			console.log("lato ",lato);
-			for(var i=0;i<arrayAltezze.length;i++){//arrayAltezze.length
+			var texture = new THREE.TextureLoader().load( image);
+			for(var i=0;i<arrayAltezze.length;i++){//
 				if(image==undefined){
-						material = new THREE.MeshBasicMaterial({color:0Xa0522d});
+						material = new THREE.MeshLambertMaterial({color:0Xa0522d});
 						//colre marroncino
 				}
 				else{
-					var texture = new THREE.TextureLoader().load( image);
 					//texture.wrapS = THREE.RepeatWrapping;
 					//texture.wrapT = THREE.RepeatWrapping;
-					//texture.repeat.set( arrayAltezze[i], arrayAltezze[i]);
 					texture.repeat.set(1,1);
-					material = new THREE.MeshBasicMaterial({map:texture});
+					material = new THREE.MeshLambertMaterial({map:texture});
 				}
-				var cubeGeometry = new THREE.BoxGeometry(larghezza,altezza,profondita);
+				var cubeGeometry = new THREE.BoxGeometry(larghezza,arrayAltezze[i],profondita);
 				var cube = new THREE.Mesh(cubeGeometry,material);
-				cube.position.set(positionX,0,positionZ);
+				cube.castShadow = true;
+				cube.receiveShadow = true;
+				cube.position.set(positionX,arrayAltezze[i]/2,positionZ);
 				pivotTerreno.add(cube);
 				if(positionX+larghezza<lato){
 					positionX +=larghezza;
