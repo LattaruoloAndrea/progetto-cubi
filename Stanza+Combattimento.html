@@ -31,7 +31,7 @@
 	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx;
 	var dimSabbia=0.5;
 	var gap = 0.9,angolo = 2.0;
-	var Goku, Vegeta, arena, sferaG, latoGenkidama = 1;
+	var Goku, Vegeta, arena, sferaG, finalFlash1, finalFlash2, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
 	var valoreDiSpostamentoBraccioDX = 0, valoreDiSpostamentoBraccioSx = 2, statoBraccio = 0;
 	var tempoR = 0, tempoC = 0, secondo = 1, tempoCombattimento = 0;
 	var statoRotazione = 0, statoTeletrasporto = 0, statoCombattimento = 0;
@@ -188,7 +188,9 @@
 				Vegeta.rotation.set(0,-90*Math.PI/180,0);
 
 
-				sferaG = creaQuadrilateroTrasparente(latoGenkidama,latoGenkidama, latoGenkidama, 0x00bfff, 0.3);
+				sferaG = creaQuadrilateroTrasparente(latoGenkidama,latoGenkidama, latoGenkidama, 0x00bfff, 0.4);
+				finalFlash1 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
+				finalFlash2 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
 				arena = new THREE.Object3D();
 				arena.add(Goku, Vegeta);
 				// Gestione scena-pivot
@@ -773,22 +775,44 @@
 						Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
 						Goku.children[4].position.y += 2;    // AncoraBraccioDx
 						Goku.children[5].position.y += 2;    // AncoraBraccioSx
+						Vegeta.children[4].rotation.z = -90*Math.PI/180;
+						Vegeta.children[5].rotation.z = 90*Math.PI/180;
+
 						statoCombattimento = 2;
 						Goku.add(sferaG);
+						Vegeta.children[4].add(finalFlash1);
+						Vegeta.children[5].add(finalFlash2);
+						finalFlash1.position.set(0,15,0);
+						finalFlash2.position.set(0,15,0);
 						sferaG.position.y = 100;
 				}}
 
 				if(statoCombattimento == 2){
-					if(latoGenkidama < 120){
+					if(latoGenkidama < 100 && latoF < 12){
 						latoGenkidama += 0.1;
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
-						if(latoGenkidama >= 120){statoCombattimento = 3;}
+						latoF += 0.01;
+						finalFlash1.scale.set(latoF,latoF,latoF);
+						finalFlash2.scale.set(latoF,latoF,latoF);
+						if(latoGenkidama >= 100){
+							statoCombattimento = 3;
+							Vegeta.children[4].rotation.z = 0*Math.PI/180;
+							Vegeta.children[5].rotation.z = 0*Math.PI/180;
+							Vegeta.children[4].rotation.set(45*Math.PI/180,0,0*Math.PI/180);
+							Vegeta.children[5].rotation.set (45*Math.PI/180,0,0*Math.PI/180);
+							latoFinalFlash = latoF;
+						}
 					}}
-					console.log(sferaG.position.z, Vegeta.position.z);
+
 				if(statoCombattimento == 3){
-					if((sferaG.position.y > (Vegeta.position.y + 25)) && (sferaG.position.z > (Vegeta.position.z - 30))){
+					if((sferaG.position.y > (Vegeta.position.y -35)) && (sferaG.position.z > (Vegeta.position.z))) {
 						sferaG.position.y -= 0.15;
-						sferaG.position.z += 0.15;
+						sferaG.position.z += 0.10;
+						latoFinalFlash += 0.1;
+						finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
+						finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
+						finalFlash1.position.y += 0.05;
+						finalFlash2.position.y += 0.05;
 					}
 				}
 		}
