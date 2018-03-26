@@ -78,14 +78,20 @@
 
 			//light
 <<<<<<< HEAD
+<<<<<<< HEAD
 			light = new THREE.PointLight( 0xffffff, 1,0 );
 			light.position.set(-120,500,0);
 			light.castShadow = false;
 =======
+=======
+>>>>>>> 39297f3c4b9963912cf06c17dde76458c077474b
 			light = new THREE.DirectionalLight( 0xffffff, 0.5 );
 			light.castShadow =true;
 			light.position.set(-250,500,0);
 			light.lookAt(0,0,0);
+<<<<<<< HEAD
+>>>>>>> 39297f3c4b9963912cf06c17dde76458c077474b
+=======
 >>>>>>> 39297f3c4b9963912cf06c17dde76458c077474b
 			scene.add(light);
 
@@ -119,7 +125,11 @@
 			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
 			var texture = new THREE.TextureLoader().load( image);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+			texture.repeat.set(1,1);
+>>>>>>> 39297f3c4b9963912cf06c17dde76458c077474b
 =======
 			texture.repeat.set(1,1);
 >>>>>>> 39297f3c4b9963912cf06c17dde76458c077474b
