@@ -64,7 +64,6 @@
 			var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
 			data[j++] = scale*all/3;
 		}
-
 		return data;
 	}
 
@@ -89,28 +88,28 @@
 
 		// LUCI
 		var amLight = new THREE.AmbientLight(0xffffff, 1);
-			scene.add( StanzaSpiritoDelTempo, amLight);
+		scene.add( StanzaSpiritoDelTempo, amLight);
 
-			stats = new Stats();
-			stats.domElement.style.position = 'absolute';
-			stats.domElement.style.top = '0px';
-			document.body.appendChild( stats.domElement );
+		stats = new Stats();
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.top = '0px';
+		document.body.appendChild( stats.domElement );
 
-			// uncomment if you need to draw coordinate axes when building the scene
-			//Coordinates.drawAllAxes();
+		// uncomment if you need to draw coordinate axes when building the scene
+		//Coordinates.drawAllAxes();
 
-			controls = new THREE.OrbitControls( camera );
-			controls.addEventListener( 'change', Render );
+		controls = new THREE.OrbitControls( camera );
+		controls.addEventListener( 'change', Render );
 
-			// terrain
-			var img = new Image();
-			img.onload = function () {
-				//get height data from img
-				var data = getHeightData(img,0.1);
-				// load img source
-				img.src = "textures/heightmap2.png";
-			}
+		// terrain
+		var img = new Image();
+		img.onload = function () {
+			//get height data from img
+			var data = getHeightData(img,0.1);
+			// load img source
+			img.src = "textures/heightmap2.png";
 		}
+	}
 
 		function creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo){
 
@@ -818,7 +817,7 @@
 
 						if(sferaG.position.y <= (Vegeta.position.y + extra)){
 							statoCombattimento = 4;
-							
+
 						}
 					}
 				}
