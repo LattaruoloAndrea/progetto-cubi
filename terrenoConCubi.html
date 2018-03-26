@@ -77,9 +77,10 @@
 			document.body.appendChild( stats.domElement );
 
 			//light
-			light = new THREE.PointLight( 0xffffff, 1,0 );
-			light.position.set(-120,500,0);
+			light = new THREE.DirectionalLight( 0xffffff, 0.5 );
 			light.castShadow =true;
+			light.position.set(-250,500,0);
+			light.lookAt(0,0,0);
 			scene.add(light);
 
 			// uncomment if you need to draw coordinate axes when building the scene
@@ -111,29 +112,27 @@
 			var positionZ = 0;
 			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
 			var texture = new THREE.TextureLoader().load( image);
+			texture.repeat.set(1,1);
 			for(var i=0;i<arrayAltezze.length;i++){//
 				if(image==undefined){
 						material = new THREE.MeshLambertMaterial({color:0Xa0522d});
 						//colre marroncino
 				}
 				else{
-					//texture.wrapS = THREE.RepeatWrapping;
-					//texture.wrapT = THREE.RepeatWrapping;
-					texture.repeat.set(1,1);
 					material = new THREE.MeshLambertMaterial({map:texture});
 				}
-				var cubeGeometry = new THREE.BoxGeometry(larghezza,arrayAltezze[i],profondita);
+				var cubeGeometry = new THREE.BoxBufferGeometry(larghezza,arrayAltezze[i],profondita);
 				var cube = new THREE.Mesh(cubeGeometry,material);
 				cube.castShadow = true;
 				cube.receiveShadow = true;
 				cube.position.set(positionX,arrayAltezze[i]/2,positionZ);
 				pivotTerreno.add(cube);
-				if(positionX+larghezza<lato){
+				if(positionX+larghezza<lato*larghezza){
 					positionX +=larghezza;
 				}
 				else{
 					positionX = 0;
-					if(positionZ+profondita<lato){
+					if(positionZ+profondita<lato*profondita){
 						positionZ +=profondita;
 					}
 					else{
