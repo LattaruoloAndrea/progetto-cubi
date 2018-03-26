@@ -1,0 +1,162 @@
+<html>
+	<head>
+		<title>Starting Code for 1st Project 2017</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src="lib/three.min.js"></script>
+		<script src="lib/stats.min.js"></script>
+		<script src="lib/Coordinates.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+	</head>
+	<body>
+
+		<script>
+
+		var scene, camera, renderer, controls, stats;
+
+		//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
+		function getHeightData(img,scale) {
+
+		 if (scale == undefined) scale=1;
+
+		    var canvas = document.createElement( 'canvas' );
+		    canvas.width = img.width;
+		    canvas.height = img.height;
+		    var context = canvas.getContext( '2d' );
+
+		    var size = img.width * img.height;
+			console.log(size);
+		    var data = new Float32Array( size );
+
+		    context.drawImage(img,0,0);
+
+		    for ( var i = 0; i < size; i ++ ) {
+		        data[i] = 0
+		    }
+
+		    var imgd = context.getImageData(0, 0, img.width, img.height);
+		    var pix = imgd.data;
+
+		    var j=0;
+		    for (var i = 0; i<pix.length; i +=4) {
+		        var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
+		        data[j++] = scale*all/3;
+		    }
+
+		    return data;
+		}
+
+		function Start() {
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			renderer = new THREE.WebGLRenderer( {antialias: true} );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0xf0f0f0 );
+			document.body.appendChild( renderer.domElement );
+
+			camera.position.set(0,120,120);
+			camera.lookAt( new THREE.Vector3(0,0,0));
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+
+			// uncomment if you need to draw coordinate axes when building the scene
+			Coordinates.drawAllAxes();
+
+			controls = new THREE.OrbitControls( camera );
+			controls.addEventListener( 'change', Render );
+
+			var terreno = new THREE.Object3D();
+			// terrain
+
+			var img = new Image();
+			img.onload = function () {
+
+				//get height data from img
+				var data = getHeightData(img);
+				console.log("data1 ",data);
+				terreno =createTerrain(1,1,1,data,"textures/11635.jpg");
+				scene.add(terreno);
+				console.log("terreno childre, ",terreno.children.length);
+			}
+			// load img source
+			img.src = "textures/heightmap2.png";
+
+		}
+
+		function createTerrain(larghezza,altezza,profondita,arrayAltezze,image){
+			var pivotTerreno = new THREE.Object3D();
+			var material;
+			var positionX = 0;
+			var positionZ = 0;
+			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
+			console.log("PIXEL ",arrayAltezze.length);
+			console.log("lato ",lato);
+			for(var i=0;i<arrayAltezze.length;i++){//arrayAltezze.length
+				if(image==undefined){
+						material = new THREE.MeshBasicMaterial({color:0Xa0522d});
+						//colre marroncino
+				}
+				else{
+					var texture = new THREE.TextureLoader().load( image);
+					//texture.wrapS = THREE.RepeatWrapping;
+					//texture.wrapT = THREE.RepeatWrapping;
+					//texture.repeat.set( arrayAltezze[i], arrayAltezze[i]);
+					texture.repeat.set(1,1);
+					material = new THREE.MeshBasicMaterial({map:texture});
+				}
+				var cubeGeometry = new THREE.BoxGeometry(larghezza,altezza,profondita);
+				var cube = new THREE.Mesh(cubeGeometry,material);
+				cube.position.set(positionX,0,positionZ);
+				pivotTerreno.add(cube);
+				if(positionX+larghezza<lato){
+					positionX +=larghezza;
+				}
+				else{
+					positionX = 0;
+					if(positionZ+profondita<lato){
+						positionZ +=profondita;
+					}
+					else{
+						positionZ = 0;
+					}
+				}
+			}
+			pivotTerreno.position.set(-lato/2,0,-lato/2);
+			return pivotTerreno;
+		}
+
+		function Update() {
+			requestAnimationFrame( Update );
+			controls.update();
+			stats.update();
+			Render();
+		}
+
+		function Render() {
+
+			renderer.render(scene, camera);
+		}
+
+		Start();
+		Update();
+
+		</script>
+	</body>
+</html>
