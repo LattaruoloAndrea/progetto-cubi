@@ -31,11 +31,12 @@
 	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx;
 	var dimSabbia = 2;
 	var gap = 1,angolo = 2.0;
-	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG, finalFlash1, finalFlash2, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
+	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG, finalFlash1, finalFlash2, posizioneVegeta = 0;;
+	var sferaGenkidama, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
 	var valoreDiSpostamentoBraccioDX = 0, valoreDiSpostamentoBraccioSx = 2, statoBraccio = 0;
 	var tempoR = 0, tempoC = 0, tempoF = 0, secondo = 1, tempoCombattimento = 0;
 	var statoRotazione = 0, statoTeletrasporto = 0, statoCombattimento = -1;
-	var creaEnergia = true,numEner=40;
+	var creaEnergia = true,numEner = 200;
 
 	//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 	function getHeightData(img,scale) {
@@ -176,6 +177,9 @@
 				costruzionePalloncino(PalloncinoDx, altezzaPalloncino, moltiplicatoreDimP);
 				PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
 
+				Foresta = new THREE.Object3D();
+				creaForesta(0.5, Foresta);
+
 				Goku = new THREE.Object3D();
 				Vegeta = new THREE.Object3D();
 				pivotSferaG = new THREE.Object3D();
@@ -192,10 +196,12 @@
 				sferaG = creaQuadrilateroTrasparente(latoGenkidama,latoGenkidama, latoGenkidama, 0x00bfff, 0.4);
 				finalFlash1 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
 				finalFlash2 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
+				sferaGenkidama = new THREE.Object3D();
+				sferaGenkidama.add(sferaG);
 				arena = new THREE.Object3D();
 				arena.add(Goku, Vegeta);
 				// Gestione scena-pivot
-				StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx, arena);
+				StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx, arena, Foresta);
 		}
 
 		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
@@ -562,6 +568,48 @@
 			}
 		}
 
+		function creaForesta(mull, pivotForesta){
+
+			var i = 0*Math.PI/180;
+			var braccioF = 300;
+			var dimensioneTronco = mull*30;
+			var dimensioneFogliame = 2*dimensioneTronco;
+
+			while( i < 360*Math.PI/180){
+				var albero = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
+				albero.position.set(Math.cos(i)*braccioF,0,-(Math.sin(i)*braccioF));
+				pivotForesta.add(albero);
+				i += 5*Math.PI/180;
+			}
+		}
+
+		function creaAlbero(mull, dimTronco, dimFogliame){
+			var albero = new THREE.Object3D();
+			var coloreTronco = 0x600000;
+			var coloreFogliame = 0x008000;
+
+			var tronco = creaQuadrilatero(dimTronco/4, dimTronco, dimTronco/4, coloreTronco);
+			var fogliame = new THREE.Object3D();
+
+			creaFogliame(fogliame, mull, dimTronco, dimFogliame, coloreFogliame);
+			fogliame.position.set(0,dimTronco/2 + 1,0);
+			albero.add(tronco, fogliame);
+			return albero;
+		}
+
+		function creaFogliame(f, mull, dimTronco, dimFogliame, color){
+			var basamento = dimTronco/2;
+			var num = 10;
+			var height = dimFogliame/num;
+
+
+			for( var j = 0; j < num ;j++){
+				var livBase = creaQuadrilatero(basamento - mull*j,height ,basamento - mull*j,color);
+				livBase.position.set(0,j*height,0);
+				f.add(livBase);
+			}
+		}
+
 		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
 			// Costruzione plane generico
 			var geometryPlane = new THREE.BoxBufferGeometry(larghezza, altezza, profondita);
@@ -709,6 +757,15 @@
 
 			var randomRotation = Math.random()*360*Math.PI/180;
 
+			var crescitaFinalFlash = 0.25;
+			var latoFinale = 80;
+			var extra = latoFinale - 60;
+			var grow = crescitaFinalFlash;
+			var crescitaSfere = 0.1;
+			var maxLatoF = 12;
+			var TempoCombattimentoPugni = 900;
+
+
 			if (statoCombattimento == -1){
 				tempoF = tempoF + secondo;
 
@@ -751,7 +808,7 @@
 						rotazioneBracciaDinamico(Goku);
 						rotazioneBracciaDinamico(Vegeta);
 					}
-				} if (tempoCombattimento > 900){
+				} if (tempoCombattimento > TempoCombattimentoPugni){
 					statoCombattimento = 1;
 				}}
 
@@ -763,8 +820,8 @@
 					if(Vegeta.position.x >= 100){
 						Goku.children[4].rotation.x = 0*Math.PI/180;    // AncoraBraccioDx
 						Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
-						Goku.children[4].position.y += 2;    // AncoraBraccioDx
-						Goku.children[5].position.y += 2;    // AncoraBraccioSx
+						Goku.children[4].position.y += 2;   						// AncoraBraccioDx
+						Goku.children[5].position.y += 2;    						// AncoraBraccioSx
 						Vegeta.children[4].rotation.z = -90*Math.PI/180;
 						Vegeta.children[5].rotation.z = 90*Math.PI/180;
 						Vegeta.children[4].position.x -= 2;
@@ -775,23 +832,25 @@
 						finalFlash1.position.set(0,15,0);
 						finalFlash2.position.set(0,15,0);
 						pivotSferaG.add(pivotEnergie,sferaG);
-						Goku.add(pivotSferaG);
-						pivotSferaG.position.set(0,100,0);
+						sferaGenkidama.add(pivotSferaG);
+						Goku.add(sferaGenkidama);
+						pivotSferaG.position.set(0,latoFinale,0);
 				}}
 
 				if(statoCombattimento == 2){
-					var crescitaSfere = 0.1;
-					var latoFinale = 80;
-					if(latoGenkidama < latoFinale && latoF < 12){
-						if(latoGenkidama<latoFinale-1 && latoF < 12-1){
+
+					if(latoGenkidama < latoFinale && latoF < maxLatoF){
+						if(latoGenkidama < latoFinale-1 && latoF < maxLatoF - 1){
 							//metto le energie
 							energiaSferaGenkidama(pivotSferaG.children[0],latoGenkidama,0.1,numEner);
 						}else{
 							//rimuovo le energie
-							if(pivotSferaG.children[0].children[0]!=undefined)
-								for(var i=0;i<numEner;i++)
+							if(pivotSferaG.children[0].children[0]!= undefined){
+								for(var i = 0;i <= numEner; i++){
 									pivotSferaG.children[0].remove(pivotSferaG.children[0].children[i]);
+								}}
 						}
+
 						latoGenkidama += 0.1;
 						latoGenkidama += crescitaSfere;
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
@@ -810,45 +869,58 @@
 						}
 					}
 				}
-					var crescitaFinalFlash = 0.25;
+
 					// Fase combattimento lancio sfere
 				if(statoCombattimento == 3){
-					var extra = 60;
-
-					var grow = 0.25;
-					if(sferaG.position.y > (Vegeta.position.y + extra)) {
-						sferaG.position.y -= 0.2;
-						sferaG.position.z += 0.2;
-						if(sferaG.position.y > (Vegeta.position.y + extra + extra/2)){
-							Goku.children[4].rotation.x = 90*Math.PI/180;    // AncoraBraccioDx
-							Goku.children[5].rotation.x = 135*Math.PI/180;    // AncoraBraccioSx
-						}
-						latoFinalFlash += grow;
+					sferaGenkidama.children[0].remove(pivotEnergie);
+					if(sferaGenkidama.position.y > (Vegeta.position.y + extra)) {
+						sferaGenkidama.position.y -= 0.2;
+						sferaGenkidama.position.z += 0.2;
+						latoFinalFlash += 2*grow;
 						finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
 						finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
-						finalFlash1.position.y += grow/3;
-						finalFlash2.position.y += grow/3;
+						finalFlash1.position.y += grow;
+						finalFlash2.position.y += grow;
 
-						if(sferaG.position.y <= (Vegeta.position.y + extra)){
+						if(sferaGenkidama.position.y <= (Vegeta.position.y + extra)){
 							statoCombattimento = 4;
-
+							//console.log(" ho aumentato la lunghezza del raggio del Final Flash a" + latoFinalFlash );
 						}
 					}
 				}
 
-				// Onde incrociate, lentamente la sfera Genkidama deve "surclussare" il final Flash
+				// Onde incrociate, lentamente la sfera Genkidama deve "surclassare" il final Flash
 				if(statoCombattimento == 4){
-					sferaG.position.y -= 0.2;
-					sferaG.position.z += 0.2;
-					latoFinalFlash -= grow;
+
+					sferaGenkidama.position.y -= grow;
+					sferaGenkidama.position.z += grow;
+					latoFinalFlash -= 2*grow;
+
 					finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
 					finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
-					finalFlash1.position.y -= grow/3;
-					finalFlash2.position.y -= grow/3;
+					finalFlash1.position.y -= grow/2;
+					finalFlash2.position.y -= grow/2;
+					if(latoFinalFlash < 0.5 ){
+						statoCombattimento = 5;
+						Vegeta.children[4].remove(finalFlash1);
+						Vegeta.children[5].remove(finalFlash2);
+					}
 				}
+
+				// Fase finale, Vegeta viene polverizzato dalla sfera Genkidama
+				if(statoCombattimento == 5){
+					var velocita = 0.2*60;
+					sferaGenkidama.position.y -= velocita/60;
+					sferaGenkidama.position.z += velocita/60;
+
+					posizioneVegeta += 1;
+					if( posizioneVegeta >= 4*velocita){
+						arena.remove(Vegeta);
+				}}
 		}
 
 		function energiaSferaGenkidama(pivotGenkidama,ray,velocitaEnergia,numEnergie){
+
 			if(creaEnergia){
 				creaEnergia = false;
 				var dim = 1;
@@ -1042,9 +1114,9 @@
 			}
 
 		function Render() {
-			rendererClessidra(ClessidraSx,classeClessidraSx);
-			rendererClessidra(ClessidraDx,classeClessidraDx);
-			animazioneCombattimento();
+			// rendererClessidra(ClessidraSx,classeClessidraSx);
+			// rendererClessidra(ClessidraDx,classeClessidraDx);
+			// animazioneCombattimento();
 
 			renderer.render(scene, camera);
 		}
