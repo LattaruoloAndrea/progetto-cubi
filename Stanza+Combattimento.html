@@ -28,7 +28,7 @@
 	<script>
 
 	var scene, camera, renderer, controls, stats;
-	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx;
+	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx, poltrona;
 	var dimSabbia = 2;
 	var gap = 1,angolo = 2.0;
 	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG, finalFlash1, finalFlash2, posizioneVegeta = 0;;
@@ -76,7 +76,7 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.setClearColor( 0xf0f0f0 );
 		document.body.appendChild( renderer.domElement );
-		camera.position.set(0,80,100);
+		camera.position.set(100,130,200);
 		camera.lookAt( new THREE.Vector3(0,0,0));
 
 		// Costruzione terreno
@@ -90,6 +90,7 @@
 
 		// LUCI
 		var amLight = new THREE.AmbientLight(0xffffff, 1);
+
 		scene.add( StanzaSpiritoDelTempo, amLight);
 
 		stats = new Stats();
@@ -191,8 +192,6 @@
 				Goku.rotation.set(0,90*Math.PI/180,0);
 				Vegeta.position.set(3,18,0);
 				Vegeta.rotation.set(0,-90*Math.PI/180,0);
-
-
 				sferaG = creaQuadrilateroTrasparente(latoGenkidama,latoGenkidama, latoGenkidama, 0x00bfff, 0.4);
 				finalFlash1 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
 				finalFlash2 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
@@ -352,7 +351,7 @@
 			pivotVetroClessidra = new THREE.Object3D();
 			var dimensioneLato = 5;
 			var posizioneVetro = m*5;
-			var opacitaCentro = 0.05;
+			var opacitaCentro = 0.2;
 			// parte sotto
 			metaClessidra1 = metaVetroClessidra(dimensioneLato, m);
 			// parte sopra
@@ -362,7 +361,7 @@
 			metaClessidra2.position.set(0,3*posizioneVetro,0);
 			metaClessidra2.rotation.set(180*Math.PI/180,0,0);
 			// Parte centrale
-			centroClessidra = creaQuadrilateroTrasparente(m*1,m*1,m*1,0x000000, opacitaCentro);
+			centroClessidra = creaQuadrilateroTrasparente(m*1,m*1,m*1,0x0000ff, opacitaCentro);
 			centroClessidra.position.set(0,2*posizioneVetro,0);
 			pivotVetroClessidra.add(metaClessidra1, metaClessidra2, centroClessidra);
 			return pivotVetroClessidra;
@@ -371,8 +370,8 @@
 		function metaVetroClessidra(l, m){
 			pivot = new THREE.Object3D();
 			var altezzaVetri = m*1;
-			var colorBase = 0x000000;
-			var opacitaVetro = 0.05;
+			var colorBase = 0x0000ff;
+			var opacitaVetro = 0.2;
 			var metaVetro = creaQuadrilateroTrasparente(m*l,m*l,m*l,colorBase, opacitaVetro);
 			var metaVetro1 = creaQuadrilateroTrasparente(m*(l-1), altezzaVetri, m*(l-1),colorBase, opacitaVetro);
 			var metaVetro2 = creaQuadrilateroTrasparente(m*(l-2), altezzaVetri, m*(l-2),colorBase, opacitaVetro);
@@ -452,7 +451,11 @@
 			var Cupola = costruzioneCupola( mul, raggio, dimCupola);
 			Cupola.position.set(0,altezzaSup - 12,0);
 			var Superficie = costruzioneSuperficie(altezzaSup, mul, raggio, dimSuperficie, dimCupola);
-			Stanza.add(Cupola, Superficie);
+			poltrona = new THREE.Object3D();
+			creaPoltrona(1);
+			poltrona.position.set(-raggio/2,-altezzaSup/2 + 5,0);
+			poltrona.rotation.y = 15*Math.PI/180;
+			Stanza.add(Cupola, Superficie, poltrona);
 			return Stanza;
 		}
 
@@ -570,17 +573,39 @@
 
 		function creaForesta(mull, pivotForesta){
 
-			var i = 0*Math.PI/180;
-			var braccioF = 300;
+			var pivotForesta1 = new THREE.Object3D();
+			var pivotForesta2 = new THREE.Object3D();
+			var pivotForesta3 = new THREE.Object3D();
+
 			var dimensioneTronco = mull*30;
 			var dimensioneFogliame = 2*dimensioneTronco;
+			var numAlberi = 20;
+			var positionX1 = -200;
+			var positionX2 = 0;
+			var positionZ = -200;
 
-			while( i < 360*Math.PI/180){
+			for(var i = 0; i < numAlberi; i++ ){
 				var albero = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
-				albero.position.set(Math.cos(i)*braccioF,0,-(Math.sin(i)*braccioF));
-				pivotForesta.add(albero);
-				i += 5*Math.PI/180;
+				albero.position.set(positionX1,0,positionZ);
+				positionX1 += 20;
+				pivotForesta1.add(albero);
+				positionX2 = positionX1;
 			}
+
+			positionX1 = -200;
+			for(var i = 0; i < numAlberi/4; i++ ){
+				var albero2 = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
+				var albero3 = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
+				albero2.position.set(positionX1,0,positionZ);
+				albero3.position.set(positionX2,0,positionZ);
+				positionZ += 20;
+				pivotForesta2.add(albero2);
+				pivotForesta3.add(albero3);
+			}
+
+
+
+			pivotForesta.add(pivotForesta1, pivotForesta2, pivotForesta3);
 		}
 
 		function creaAlbero(mull, dimTronco, dimFogliame){
@@ -608,6 +633,23 @@
 				livBase.position.set(0,j*height,0);
 				f.add(livBase);
 			}
+		}
+
+		function creaPoltrona(mul){
+
+			var color = 0xA13F00 ;
+			var colorLat = 0x200000;
+			var base = creaQuadrilatero(4*mul,4*mul,4*mul, color);
+			var lato1 = creaQuadrilatero(1*mul,6*mul,6*mul, colorLat);
+			var lato2 = creaQuadrilatero(1*mul,6*mul,6*mul, colorLat);
+			var poggiaTesta = creaQuadrilatero(6,10,1, colorLat);
+			lato1.rotation.set(90*Math.PI/180,0,0);
+			lato1.position.set(2*mul,1*mul,0);
+			lato2.rotation.set(90*Math.PI/180,0,0);
+			lato2.position.set(-2*mul,1*mul,0);
+			poggiaTesta.position.set(0,3*mul,-2*mul);
+			poltrona.add(base, lato1, lato2, poggiaTesta);
+
 		}
 
 		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
@@ -851,7 +893,6 @@
 								}}
 						}
 
-						latoGenkidama += 0.1;
 						latoGenkidama += crescitaSfere;
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
 						latoF += crescitaSfere/10;
@@ -914,9 +955,33 @@
 					sferaGenkidama.position.z += velocita/60;
 
 					posizioneVegeta += 1;
-					if( posizioneVegeta >= 4*velocita){
+					if( posizioneVegeta >= 10*velocita){
 						arena.remove(Vegeta);
+						statoCombattimento = 6;
 				}}
+
+				// Combattimento concluso: la sfera Genkidama lentamente si dissolve
+				if(statoCombattimento == 6){
+						if( latoGenkidama >= 1 ){
+						var velocita = 0.1*60;
+						sferaGenkidama.position.y -= velocita/60;
+						sferaGenkidama.position.z += velocita/60;
+
+						latoGenkidama -= crescitaSfere*2;
+						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
+					} else {
+						statoCombattimento = 7;
+					}
+				}
+
+				if(statoCombattimento == 7){
+					sferaGenkidama.children[0].remove(sferaG);
+					Goku.position.set(-3,18,0);
+					Goku.rotation.set(0*Math.PI/180,0,0);
+					Goku.children[4].rotation.x = 0*Math.PI/180;    // AncoraBraccioDx
+					Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
+
+				}
 		}
 
 		function energiaSferaGenkidama(pivotGenkidama,ray,velocitaEnergia,numEnergie){
@@ -1013,7 +1078,6 @@
 			}
 			return value;
 		}
-
 
 		function rendererClessidra(clessidra,classeCl){
 			//clessidra = oggetto 3D classeCl = classeclessidra
@@ -1114,9 +1178,9 @@
 			}
 
 		function Render() {
-			// rendererClessidra(ClessidraSx,classeClessidraSx);
-			// rendererClessidra(ClessidraDx,classeClessidraDx);
-			// animazioneCombattimento();
+			rendererClessidra(ClessidraSx,classeClessidraSx);
+			rendererClessidra(ClessidraDx,classeClessidraDx);
+			animazioneCombattimento();
 
 			renderer.render(scene, camera);
 		}

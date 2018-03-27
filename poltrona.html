@@ -1,0 +1,107 @@
+<html>
+	<head>
+		<title>SferaG</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+		<script src="lib/three.min.js"></script>
+		<script src="lib/stats.min.js"></script>
+		<script src="lib/Coordinates.js"></script>
+		<script src="lib/OrbitControls.js"></script>
+	</head>
+	<body>
+
+		<script>
+
+		var scene, camera, renderer, controls, stats, poltrona;
+
+		function Start() {
+			scene = new THREE.Scene();
+			camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			renderer = new THREE.WebGLRenderer( {antialias: true} );
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0xf0f0f0 );
+			document.body.appendChild( renderer.domElement );
+
+			camera.position.set(3,4,50);
+			camera.lookAt( new THREE.Vector3(0,0,0));
+
+      poltrona = new THREE.Object3D();
+			creaPoltrona(1);
+
+      var lightG = new THREE.AmbientLight(0xffffff, 1 );
+			scene.add( poltrona, lightG );
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+
+			// uncomment if you need to draw coordinate axes when building the scene
+			//Coordinates.drawAllAxes();
+
+			controls = new THREE.OrbitControls( camera );
+			controls.addEventListener( 'change', Render );
+			}
+
+			function creaPoltrona(mul){
+
+				var color = 0xA13F00 ;
+				var base = creaQuadrilatero(4*mul,4*mul,4*mul, color);
+				var lato1 = creaQuadrilatero(1*mul,6*mul,6*mul, color);
+				var lato2 = creaQuadrilatero(1*mul,6*mul,6*mul, color);
+				var poggiaTesta = creaQuadrilatero(6,10,1, color);
+				lato1.rotation.set(90*Math.PI/180,0,0);
+				lato1.position.set(2*mul,1*mul,0);
+				lato2.rotation.set(90*Math.PI/180,0,0);
+				lato2.position.set(-2*mul,1*mul,0);
+				poggiaTesta.position.set(0,3*mul,-2*mul);
+				poltrona.add(base, lato1, lato2, poggiaTesta);
+			}
+
+			function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
+				// Costruzione plane generico
+				var geometryPlane = new THREE.BoxBufferGeometry(larghezza, altezza, profondita);
+				//
+				if(image == undefined){
+					var planeMaterial = new THREE.MeshPhongMaterial( { color: colore } );
+					var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+				} else {
+					var texture = new THREE.TextureLoader().load( image );
+					var planeMaterial = new THREE.MeshPhongMaterial( { map: texture } );
+					var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+				}
+				return plane;
+			}
+
+		function Update() {
+			requestAnimationFrame( Update );
+			controls.update();
+			stats.update();
+			Render();
+		}
+
+    function Render() {
+
+    renderer.render(scene, camera);
+    }
+
+		Start();
+		Update();
+
+		</script>
+	</body>
+</html>
