@@ -805,7 +805,7 @@
 			var grow = crescitaFinalFlash;
 			var crescitaSfere = 0.1;
 			var maxLatoF = 12;
-			var TempoCombattimentoPugni = 900;
+			var TempoCombattimentoPugni = 100;
 
 
 			if (statoCombattimento == -1){
@@ -950,6 +950,7 @@
 
 				// Fase finale, Vegeta viene polverizzato dalla sfera Genkidama
 				if(statoCombattimento == 5){
+					creaEnergia = true;
 					var velocita = 0.2*60;
 					sferaGenkidama.position.y -= velocita/60;
 					sferaGenkidama.position.z += velocita/60;
@@ -962,6 +963,7 @@
 
 				// Combattimento concluso: la sfera Genkidama lentamente si dissolve
 				if(statoCombattimento == 6){
+					sferaGenkidama.children[0].add(pivotEnergie);
 						if( latoGenkidama >= 1 ){
 						var velocita = 0.1*60;
 						sferaGenkidama.position.y -= velocita/60;
@@ -969,7 +971,16 @@
 
 						latoGenkidama -= crescitaSfere*2;
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
+						if(latoGenkidama < latoFinale-1 && latoF < maxLatoF - 1){
+							//metto le energie
+							energiaSferaGenkidamaContraria(pivotSferaG.children[0],latoGenkidama,0.1,numEner);
+							}
 					} else {
+						//rimuovo le sfere
+						if(pivotSferaG.children[0].children[0]!= undefined){
+							for(var i = 0;i <= numEner; i++){
+								pivotSferaG.children[0].remove(pivotSferaG.children[0].children[i]);
+							}}
 						statoCombattimento = 7;
 					}
 				}
@@ -1062,6 +1073,90 @@
 							pivotGenkidama.children[i].position.set(segnoX*randomMultipl(velocitaEnergia)*2*ray,
 																											segnoY*randomMultipl(velocitaEnergia)*2*ray,
 																											segnoZ*randomMultipl(velocitaEnergia)*2*ray);
+							}
+				}
+			}
+		}
+
+		function energiaSferaGenkidamaContraria(pivotGenkidama,ray,velocitaEnergia,numEnergie){
+
+			if(creaEnergia){
+				creaEnergia = false;
+				var dim = 1;
+				for(var i=0;i<numEnergie;i++){
+					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
+					var segnoX=1,segnoY=1,segnoZ=1;
+					if(Math.random()<0.5){
+						segnoX=-1;
+					}
+					var segnoY=1;
+					if(Math.random()<0.5){
+						segnoY=-1;
+					}
+					var segnoZ=1;
+					if(Math.random()<0.5){
+						segnoZ=-1;
+					}
+					// energia.position.set(segnoX*randomMultipl(velocitaEnergia)*ray,
+					// 			 segnoY*randomMultipl(velocitaEnergia)*ray,
+					// 			 segnoZ*randomMultipl(velocitaEnergia)*ray);
+					energia.position.set(pivotGenkidama.position.x,pivotGenkidama.position.y,pivotGenkidama.position.z);
+					pivotGenkidama.add(energia);
+				}
+			}
+			else{
+				//sposto le energie
+				for(var i=0;i<numEnergie;i++){
+					if(2*ray+pivotGenkidama.position.x< pivotGenkidama.children[i].position.x){
+						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x+velocitaEnergia;
+					}
+					else if(2*ray+pivotGenkidama.position.x == Math.trunc(pivotGenkidama.children[i].position.x)){
+						pivotGenkidama.children[i].position.x=2*ray+pivotGenkidama.position.x;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x-velocitaEnergia;
+					}
+					if(2*ray+pivotGenkidama.position.y< pivotGenkidama.children[i].position.y ){
+						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y+velocitaEnergia;
+					}
+					else if(2*ray+pivotGenkidama.position.y == Math.trunc(pivotGenkidama.children[i].position.y)){
+						pivotGenkidama.children[i].position.y=2*ray+pivotGenkidama.position.y;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y-velocitaEnergia;
+					}
+					if(2*ray+pivotGenkidama.position.z< pivotGenkidama.children[i].position.z ){
+						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z+velocitaEnergia;
+					}
+					else if(2*ray+pivotGenkidama.position.z == Math.trunc(pivotGenkidama.children[i].position.z)){
+						pivotGenkidama.children[i].position.z=2*ray+pivotGenkidama.position.z;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z-velocitaEnergia;
+					}
+					if(2*ray+pivotGenkidama.position.x == pivotGenkidama.children[i].position.x &&
+						2*ray+pivotGenkidama.position.y == pivotGenkidama.children[i].position.y &&
+						2*ray+pivotGenkidama.position.z == pivotGenkidama.children[i].position.z){
+							segnoX =1;
+							segnoY =1;
+							segnoZ =1;
+							if(Math.random()<0.5){
+								segnoX=-1;
+							}
+							var segnoY=1;
+							if(Math.random()<0.5){
+								segnoY=-1;
+							}
+							var segnoZ=1;
+							if(Math.random()<0.5){
+								segnoZ=-1;
+							}
+							pivotGenkidama.children[i].position.set(segnoX*randomMultipl(velocitaEnergia)*ray,
+																											segnoY*randomMultipl(velocitaEnergia)*ray,
+																											segnoZ*randomMultipl(velocitaEnergia)*ray);
 							}
 				}
 			}
