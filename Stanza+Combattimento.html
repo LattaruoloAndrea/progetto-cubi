@@ -31,12 +31,12 @@
 	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx, poltrona;
 	var dimSabbia = 2;
 	var gap = 1,angolo = 2.0;
-	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG, finalFlash1, finalFlash2, posizioneVegeta = 0;;
+	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG,pivotCono, finalFlash1, finalFlash2, posizioneVegeta = 0;;
 	var sferaGenkidama, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
 	var valoreDiSpostamentoBraccioDX = 0, valoreDiSpostamentoBraccioSx = 2, statoBraccio = 0;
 	var tempoR = 0, tempoC = 0, tempoF = 0, secondo = 1, tempoCombattimento = 0;
 	var statoRotazione = 0, statoTeletrasporto = 0, statoCombattimento = -1;
-	var creaEnergia = true,numEner = 200;
+	var creaEnergia = true,puntoFinale=[],creaPuntiFinali=true,numEner = 200,numEnerr = 400;
 
 	//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
 	function getHeightData(img,scale) {
@@ -114,7 +114,6 @@
 		}
 	}
 
-		// Funzione principale, riunisce tutte gli oggetti posti all'interno della stanza in un unica funzione
 		function creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo){
 
 			// Creazione Piano della Stanza dello Spirito e del Tempo
@@ -186,6 +185,7 @@
 				Vegeta = new THREE.Object3D();
 				pivotSferaG = new THREE.Object3D();
 				pivotEnergie = new THREE.Object3D();
+				pivotCono = new THREE.Object3D();
 				var moltiplicatoreDimPersonaggio = 1;
 				creaPersonaggio(Goku, "textures/Goku/shirt.png", "textures/Goku/pants.png", moltiplicatoreDimPersonaggio);
 				creaPersonaggio(Vegeta, "textures/Vegeta/corpo.png", "textures/Vegeta/gambe.png", moltiplicatoreDimPersonaggio);
@@ -203,7 +203,7 @@
 				// Gestione scena-pivot
 				StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx, arena, Foresta);
 		}
-		// dati i valori dei due basamenti, resistuisce i due basamenti su cui poggia l'intera stanza
+
 		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
 
 			// Piani TerrenoStanza
@@ -213,7 +213,7 @@
 			piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
 			obj.add(piantaVerticale, piantaOrizzontale);
 		}
-		// crea il basamento verticale
+
 		function creaPiantaVert(h, bM, bm){
 
 			var pivotPianta = new THREE.Object3D();
@@ -227,7 +227,7 @@
 			pivotPianta.add(plane1, plane2, plane3);
 			return pivotPianta;
 		}
-		// Crea il basamento orizzontale
+
 		function creaPiantaOrizz(h, bM, bm){
 
 			var pivotPianta = new THREE.Object3D();
@@ -958,13 +958,15 @@
 
 					posizioneVegeta += 1;
 					if( posizioneVegeta >= 10*velocita){
-						arena.remove(Vegeta);
+					//	arena.remove(Vegeta);
 						statoCombattimento = 6;
-				}}
+					}
+				}
 
 				// Combattimento concluso: la sfera Genkidama lentamente si dissolve
 				if(statoCombattimento == 6){
-					sferaGenkidama.children[0].add(pivotEnergie);
+					Vegeta.add(pivotCono);
+					//sferaGenkidama.children[0].add(pivotEnergie);
 						if( latoGenkidama >= 1 ){
 						var velocita = 0.1*60;
 						sferaGenkidama.position.y -= velocita/60;
@@ -974,13 +976,17 @@
 						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
 						if(latoGenkidama < latoFinale-1 && latoF < maxLatoF - 1){
 							//metto le energie
-							energiaSferaGenkidamaContraria(pivotSferaG.children[0],latoGenkidama,0.1,numEner);
+							esplosioneCono(pivotCono,200,30,numEnerr);
+							//pivot,raggioCono,velocita,numeroEnergie
+							//un intero maggire per velocita dimisnuisce la velocita
 							}
 					} else {
 						//rimuovo le sfere
-						if(pivotSferaG.children[0].children[0]!= undefined){
-							for(var i = 0;i <= numEner; i++){
-								pivotSferaG.children[0].remove(pivotSferaG.children[0].children[i]);
+						if(pivotCono.children[0]!= undefined){
+							//non funge
+							console.log("here");
+							for(var i = 0;i <= numEnerr; i++){
+								pivotCono.remove(pivotCono.children[i]);
 							}}
 						statoCombattimento = 7;
 					}
@@ -1003,7 +1009,7 @@
 				var dim = 1;
 				for(var i=0;i<numEnergie;i++){
 					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
-					var segnoX=1,segnoY=1,segnoZ=1;
+					var segnoX=1;
 					if(Math.random()<0.5){
 						segnoX=-1;
 					}
@@ -1079,89 +1085,59 @@
 			}
 		}
 
-		function energiaSferaGenkidamaContraria(pivotGenkidama,ray,velocitaEnergia,numEnergie){
-
+		function esplosioneCono(pivotIniziale,rayBase,velocitaEnergia,numEnergie){
+			//ricordarsi di mettere Crea energia a true nel codice da qualche parte prima di richiamare questa funzione
+			//velocitaEnergia e' un po diverso rispetto a quella di energiaSfera genkidama piu grande il valore e'
+			//piu lento il movimento e' velocitaEnergia numero intero da 1 a n
+			var lunghezzaCono = 200;
+			var puntoIniziale,nuovoPunto;
+			var segnoX,segnoY;
 			if(creaEnergia){
 				creaEnergia = false;
 				var dim = 1;
 				for(var i=0;i<numEnergie;i++){
 					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
-					var segnoX=1,segnoY=1,segnoZ=1;
-					if(Math.random()<0.5){
-						segnoX=-1;
-					}
-					var segnoY=1;
-					if(Math.random()<0.5){
-						segnoY=-1;
-					}
-					var segnoZ=1;
-					if(Math.random()<0.5){
-						segnoZ=-1;
-					}
-					// energia.position.set(segnoX*randomMultipl(velocitaEnergia)*ray,
-					// 			 segnoY*randomMultipl(velocitaEnergia)*ray,
-					// 			 segnoZ*randomMultipl(velocitaEnergia)*ray);
-					energia.position.set(pivotGenkidama.position.x,pivotGenkidama.position.y,pivotGenkidama.position.z);
-					pivotGenkidama.add(energia);
+					energia.position.set(pivotIniziale.position.x,pivotIniziale.position.y,pivotIniziale.position.z);
+					pivotIniziale.add(energia);
 				}
 			}
 			else{
-				//sposto le energie
+				//sposto le energie a caso a formare un cono
 				for(var i=0;i<numEnergie;i++){
-					if(2*ray+pivotGenkidama.position.x< pivotGenkidama.children[i].position.x){
-						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x+velocitaEnergia;
+					segnoX=1;
+					if(Math.random()<0.5){
+						segnoX=-1;
 					}
-					else if(2*ray+pivotGenkidama.position.x == Math.trunc(pivotGenkidama.children[i].position.x)){
-						pivotGenkidama.children[i].position.x=2*ray+pivotGenkidama.position.x;
-						//non la modifico piu perche sono dove volevo arrivare
-					}else
-					{
-						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x-velocitaEnergia;
+					segnoY=1;
+					if(Math.random()<0.5){
+						segnoY=-1;
 					}
-					if(2*ray+pivotGenkidama.position.y< pivotGenkidama.children[i].position.y ){
-						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y+velocitaEnergia;
+					 if(creaPuntiFinali){
+					 	creaPuntiFinali = false;
+					 	for(var j=0;j<numEnergie;j++){
+					 		puntoFinale.push(new THREE.Vector3(Math.trunc(segnoX*Math.random()*rayBase*100)/100,
+					 																			Math.trunc(segnoY*Math.random()*rayBase*100)/100,
+					 																			pivotIniziale.position.z+lunghezzaCono));
+					 		}
+					 	}
+					 	puntoIniziale = new THREE.Vector3(pivotIniziale.children[i].position.x,
+					 																				pivotIniziale.children[i].position.y,
+					 																				pivotIniziale.children[i].position.z);
+						if(pivotIniziale.children[i].position.z>pivotIniziale.position.z-lunghezzaCono){
+					 	pivotIniziale.children[i].position.set(pivotIniziale.children[i].position.x-
+					 																				 Math.trunc((-puntoIniziale.x+puntoFinale[i].x)/velocitaEnergia),
+					 																				 pivotIniziale.children[i].position.y-
+					 														 						 Math.trunc((-puntoIniziale.y+puntoFinale[i].y)/velocitaEnergia),
+					 																				 pivotIniziale.children[i].position.z-
+					 														 						 Math.trunc((-puntoIniziale.z+puntoFinale[i].z)/velocitaEnergia*Math.trunc(Math.random()*10)));
+						}else{
+						pivotIniziale.children[i].position.set(pivotIniziale.position.x,
+																									 pivotIniziale.position.y,
+																									 pivotIniziale.position.z);
 					}
-					else if(2*ray+pivotGenkidama.position.y == Math.trunc(pivotGenkidama.children[i].position.y)){
-						pivotGenkidama.children[i].position.y=2*ray+pivotGenkidama.position.y;
-						//non la modifico piu perche sono dove volevo arrivare
-					}else
-					{
-						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y-velocitaEnergia;
 					}
-					if(2*ray+pivotGenkidama.position.z< pivotGenkidama.children[i].position.z ){
-						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z+velocitaEnergia;
-					}
-					else if(2*ray+pivotGenkidama.position.z == Math.trunc(pivotGenkidama.children[i].position.z)){
-						pivotGenkidama.children[i].position.z=2*ray+pivotGenkidama.position.z;
-						//non la modifico piu perche sono dove volevo arrivare
-					}else
-					{
-						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z-velocitaEnergia;
-					}
-					if(2*ray+pivotGenkidama.position.x == pivotGenkidama.children[i].position.x &&
-						2*ray+pivotGenkidama.position.y == pivotGenkidama.children[i].position.y &&
-						2*ray+pivotGenkidama.position.z == pivotGenkidama.children[i].position.z){
-							segnoX =1;
-							segnoY =1;
-							segnoZ =1;
-							if(Math.random()<0.5){
-								segnoX=-1;
-							}
-							var segnoY=1;
-							if(Math.random()<0.5){
-								segnoY=-1;
-							}
-							var segnoZ=1;
-							if(Math.random()<0.5){
-								segnoZ=-1;
-							}
-							pivotGenkidama.children[i].position.set(segnoX*randomMultipl(velocitaEnergia)*ray,
-																											segnoY*randomMultipl(velocitaEnergia)*ray,
-																											segnoZ*randomMultipl(velocitaEnergia)*ray);
-							}
 				}
 			}
-		}
 
 		function randomMultipl(n){
 			// n<1 n>0
