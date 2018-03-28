@@ -1,31 +1,53 @@
 # Inizio progetto
-Creazione della stanza dello spirito e del tempo
+Il progetto definitivo prevede la costruzione della stanza dello spirito e del tempo, con un'animazione di combattimento tra Goku e Vegeta, con sullo sfondo l'animazione delle clessidre a scandire il tempo.
 
-##interazioni
--La creazione della Stanza dello spirito e del tempo è partita dalla costruzione del basamento a T sulla quale sono stati posti in successioni gli oggetti quali le clessidre, i palloncini, la stanza e la cupola sovrastante
-### costruzione generale
+## costruzione generale
+La creazione della Stanza dello spirito e del tempo è partita dalla costruzione del basamento a T sulla quale sono stati posti in successioni gli oggetti quali le clessidre, i palloncini, la stanza e la cupola sovrastante, con ulteriori dettagli. Successivamente ci siamo dedicati ai personaggi, alle loro animazioni e al loro combattimento.
 La costruzione generale di ogni oggetto della scena parte dalle due funzioni base creaQuadrilatero e creaQuadrilateroTrasparente, le quali creano semplici cubi in base alle dimensioni che ricevono, il loro colore e le loro eventuali texture. Le due si dinstinuongo nella creazione o meno di cubi trasparenti, passando il valore di opacità da porre nel Material dei cubi.
-#### costruzione clessidre
+
+### Costruzione degli oggetti della scena
+#### Clessidre
 -Le clessidre sono un insieme di cubi che formano rispettivamento la base, la parte superiore e la parte di vetro, creata tramite l'unione di due identici blocchi di vetro, di cui uno ruotato di 180 gradi rispetto all'asse x. Lo stesso meccanismo è stato adottato anche per la costruzione della parte superiore della  clessidra e del basamento dei palloncini. Inizialmente la scelta del colore era ricaduta sull'uso di una texture Oro, poi rimossa per questione di calcolo computazionale. La costruzione della clessidra si basa su queste funzioni:
 -costruzioneClessidra, che riceve i parametri pivotClessidra, che permette lo spostamento dell'intera clessidra; altezzaCl, ovvero l'altezza della parte di vetro della clessidra; mul, utilizzato in tutti i successivi parametri per poter scalare la clessidra in basse alle esigenze; colSabbia, il colore della sabbia; clessClass   
 -creaBaseClessidra, che riceve il solo pramentro m, cioè la mul precedente, e crea le due basi da porre sopra e sotto la zona di vetro.
 -creaVetroClessidra, che riceve il solo paramentro mul e crea tutta la parte centrale di vetro della clessidra, facendo uso anche della funzione metaVetroClessidra, la quale restituisce una metà del vetro della clessidra, che si compone di due identiche metà, una ribaltata di 180 gradi sul suo asse x ed entrambe poi poste tra un piccolo cubo posto al centro che completa il vetro della clessidra.
-#### animazione clessidre
--in un file a parte mi sono crato la clessidra e ci ho lavorato sopra
--se muovo la clessidra nel file non ho problemi (file spostamentoSabbia.html)
--problema non riesco a visualizzare il cambiamento della sabbia all'interno delle clessidre nella scena finale
-giorno # finalmente siamo riusciti a caricare le clessidre con l'animazione. Molti problemi sono stati riscontrati soprattutto il fatto di aver lavorato in un file separato e poi aver dovuto caricare la clessidra con l'animazione in un'altro file.
-Alla fine una pulizia del codice è stata necessaria per rendere più chiaro cosa bisognasse fare.
-Dopo la pulizia comunque quando provavo ad aggiungere una clessidra in piu e fare l animazione su entrame le clessidre una sorta di bug grafico usciva perche le due clessidre condividevano una variabile ("count" inizialmente pensata per ridurre ed aumentare la velocita della serpentina nella clessidra) dopo che la variabile count e stata legata ad ogni clessidra ogni problema è stato risolto.
-Il merging dei due file dopo la pulizia di quello singolo non è stato troppo complicato  un copia incolla un po generale e il risultato andava.
--alla fine abiamo ridotto il numero dei granelli all'interno delle clesside per avere una fluibilità migliore della scena.
 
-#### Costruzione terreno
+#### Terreno
 Il terreno è stato costruito partendo dal codice fornito. E' stata aggiunta una procedura creazione terreno che dato l 'array delle altezze crea delle colonne che formano il terreno.
-L altezza delle colonne corrisponde al colore dell'immagine in scala di grigi fornita. 
-E' stato necessario spostare la riga di codice "img.src = "textures/heightmap2.png";" fuori dalla procedura img.onload = function() perchè sennò non era possibile caricare il terreno. 
-#### costruzione palloncini
+L altezza delle colonne corrisponde al colore dell'immagine in scala di grigi fornita.
+E' stato necessario spostare la riga di codice "img.src = "textures/heightmap2.png";" fuori dalla procedura img.onload = function() perchè sennò non era possibile caricare il terreno.
 
+#### Palloncini
+I pallocini sono un insieme di cubi le cui dimensioni man mano vanno a crescere fino al cubo centrale. Vengono creati tramite le seguenti funzioni:
+-creaSfera, che crea  l'intero palloncino;
+-creaMetaSfera, che crea i due blocchi. Successivamente il secondo viene ruotato di 180 gradi e poi posto sopra il primo. A concludere il tutto le funzioni:
+-creaAstaPalloncino, che costruisce l'asta su cui poggia il palloncino
+-creaBasePalloncino che costruisce le due basi poste sopra e sotto l'asta , di colore oro.
+
+#### Stanza
+La costruzione della stanza è partita dall'unione della parte di superficie circolare sottostante e la cupola sovrastante. Per la costruzione della stanza abbiamo fatto uso delle funzioni:
+-costruzioneSuperficie, la quale crea la superficie circolare con piccolissimi cubi molto alti posti tramite una position con seno e coseno per un certo angolo a nostro piacimento ( nel nostro caso 210 gradi totali). Successivamente, con analogo metodo, ma per tutta la dimensione del cerchio (360 gradi), è stato costruito un piccolo bordo sopra la superficie, dove poi va a poggiare la Cupola.
+-costruzioneCupola che crea la cupola tramite lo stesso meccanismo precedente all'interno di un while, che una volta eseguito un primo cerchio della cupola, alza il valore di y per porre il successivo cerchio della cupola sopra il precedente con un raggio inferiore, fino al cerchio finale che ciude la cupola. Poi sono stati aggiunte alla stanza le due camere laterali con tetti tramite le funzioni -costruzioneCamera, che csotruisce le due camere laterali alla stanza circolare, facendo uso di un cubo
+-costruzioneTetto, infine, costruisce il tetto sovrastante le due camere.
+
+#### Personaggi
+ I personaggi sono stati costruiti con la funzione creaPersonaggio, che riceve le texture da porre sul corpo, sulle braccia e sulle gambe e crea una persona con vari cubi che vanno a formare rispettivamente le due braccia, le due gambe, il viso, i capelli, gli occhi e la bocca e il corpo. le rotazioni delle braccia sono state fatte tramite un pivot di ancoraggio posto in posizione iniziale del braccio. Per una migliore struttura abbiamo deciso di sistemare tutti i cubi che vanno a formare il personaggio tramire una funzione separata chiamata posizionamento, che pone i cubi nelle giuste posizioni a formare il personaggio.
+
+#### Foresta
+La foresta è stata costrutita tramite la funzione creaForesta, la quale, in base ad un numero fissato, pone tanti alberi quanto il valore del numero all'interno della scena, facendo uso della Funzione
+-creaAlbero, la quale tramite un cubo crea il tronco e per la parte superiore dell'albero fa uso della funzione
+-creaFogliame, la quale tramite un for pone cubi di colore verde uno sopra l'altro che man mano vanno a ridursi.
+
+### Animazioni
+#### animazione clessidre
+ -in un file a parte mi sono crato la clessidra e ci ho lavorato sopra
+ -se muovo la clessidra nel file non ho problemi (file spostamentoSabbia.html)
+ -problema non riesco a visualizzare il cambiamento della sabbia all'interno delle clessidre nella scena finale
+ giorno # finalmente siamo riusciti a caricare le clessidre con l'animazione. Molti problemi sono stati riscontrati soprattutto il fatto di aver lavorato in un file separato e poi aver dovuto caricare la clessidra con l'animazione in un'altro file.
+ Alla fine una pulizia del codice è stata necessaria per rendere più chiaro cosa bisognasse fare.
+ Dopo la pulizia comunque quando provavo ad aggiungere una clessidra in piu e fare l animazione su entrame le clessidre una sorta di bug grafico usciva perche le due clessidre condividevano una variabile ("count" inizialmente pensata per ridurre ed aumentare la velocita della serpentina nella clessidra) dopo che la variabile count e stata legata ad ogni clessidra ogni problema è stato risolto.
+ Il merging dei due file dopo la pulizia di quello singolo non è stato troppo complicato  un copia incolla un po generale e il risultato andava.
+ -alla fine abiamo ridotto il numero dei granelli all'interno delle clesside per avere una fluibilità migliore della scena.
 
 #### Animazione Sfera Genkidama
 Abbiamo riprodotto la sfera genkidama che pian piano si ingrandisce (attraverso uno scale), per renderla simile a quella reale abbiamo fatto in modo da far veicolare delle mini sfere di energia verso il centro della sfera.

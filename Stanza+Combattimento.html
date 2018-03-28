@@ -114,6 +114,7 @@
 		}
 	}
 
+		// Funzione principale, riunisce tutte gli oggetti posti all'interno della stanza in un unica funzione
 		function creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo){
 
 			// Creazione Piano della Stanza dello Spirito e del Tempo
@@ -202,7 +203,7 @@
 				// Gestione scena-pivot
 				StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx, arena, Foresta);
 		}
-
+		// dati i valori dei due basamenti, resistuisce i due basamenti su cui poggia l'intera stanza
 		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
 
 			// Piani TerrenoStanza
@@ -212,7 +213,7 @@
 			piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
 			obj.add(piantaVerticale, piantaOrizzontale);
 		}
-
+		// crea il basamento verticale
 		function creaPiantaVert(h, bM, bm){
 
 			var pivotPianta = new THREE.Object3D();
@@ -226,7 +227,7 @@
 			pivotPianta.add(plane1, plane2, plane3);
 			return pivotPianta;
 		}
-
+		// Crea il basamento orizzontale
 		function creaPiantaOrizz(h, bM, bm){
 
 			var pivotPianta = new THREE.Object3D();
@@ -805,7 +806,7 @@
 			var grow = crescitaFinalFlash;
 			var crescitaSfere = 0.1;
 			var maxLatoF = 12;
-			var TempoCombattimentoPugni = 100;
+			var TempoCombattimentoPugni = 900;
 
 
 			if (statoCombattimento == -1){
