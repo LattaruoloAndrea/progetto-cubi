@@ -63,13 +63,16 @@ L'animazione del combattimento è stata trattata tramite la funzione animazioneC
 
 Le animazioni interne al combattimento sono le seguenti:
 
-- animazione Pugni
-L'animazione dei pugni è stata fatta tramite la funzione animazioneBracciaPersonaggio, la quale contemporaneamente sposta le braccia sull'asse z e ruota l'ancoraggio delle braccia di un angolazione random
+- ##### Animazione Pugni
+L'animazione dei pugni è stata fatta tramite la funzione animazioneBracciaPersonaggio, la quale contemporaneamente sposta le braccia sull'asse z e ruota l'ancoraggio delle braccia di un angolazione random.
+
+- ##### Animazione Teletrasporto
+L'animazione del teletrasporto è stata fatta tramite lo spostamento randomico di un pivot chiamato arena, il qaule contiene entrambi ii personaggi dello scontro: questo simula il loro spostamento rapidissimo e pertanto il teletrasporto.
 
 - Animazioni sfera Genkidama
-- # Animazione  crescita sfera Genkidama
+- ##### Animazione  crescita sfera Genkidama
 Abbiamo riprodotto la sfera genkidama che pian piano si ingrandisce (attraverso uno scale), per renderla simile a quella reale abbiamo fatto in modo da far veicolare delle mini sfere di energia verso il centro della sfera.
 Le sfere una volta arrivate nel centro vengono spostate in una posizione esterna (al posto di eliminare ogni sfera e crearne una nuova). Alla fine dell' "ingrandimento" della sfera genkidama queste sfere di energia vengono rimosso dalla scena.
 
-- # Animazione disgregamento sfera Genkidama
+- ##### Animazione disgregamento sfera Genkidama
 In seguito alla caduta della sfera verso Vegeta, abbiamo simulato la sua disgregazione partendo dal centro del corpo di Vegeta in direzione dell'asse z di quest'ultimo, dando idea del colpo che trapassa il suo corpo. Per fare questo abbiamo usato la funzione esplosioneCono, la quale creati un numero fissato di piccoli cubi li sposta idealmente dentro un Cono molto velocemente. Alcuni problemi sono sorti nell'eliminazione di questi piccoli cubi una volta terminata l'animazione. La soluzione è stata sfruttare il paramentro children per trovare l'elemento pivotCono che faceva parte dell'oggetto Vegeta ed eliminarlo tramite un for.
