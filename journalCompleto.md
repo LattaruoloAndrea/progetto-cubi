@@ -49,6 +49,24 @@ La foresta è stata costrutita tramite la funzione creaForesta, la quale, in bas
  Il merging dei due file dopo la pulizia di quello singolo non è stato troppo complicato  un copia incolla un po generale e il risultato andava.
  -alla fine abiamo ridotto il numero dei granelli all'interno delle clesside per avere una fluibilità migliore della scena.
 
-#### Animazione Sfera Genkidama
+#### Animazione Combattimento
+L'animazione del combattimento è stata trattata tramite la funzione animazioneCombattimento, la quale fa uso di diverse funzioni più elementar, descritte in seguito, volte a semplificare e struttrare meglio il lavoro. In generale la funzione prevedeve un "passaggio" da uno stato di combattimento ad un'altro tramite la variabile statoCombattimento, la quale viene aggiornata a +1 ogni qual volta il combattimento cambiava. Le fasi del coombattimento sono 8:
+-statoCombattimento == -1 : qui inizialmente i due combattenti sono fermi uno di fronte all'altro per un tempo fissato.
+-statoCombattimento == 0  : inizia il vero e proprio combattimento, fatti di molteplici pungni e rapidissime fasi di teletrasporto, che spiegheremo nel dettaglio successivamente. Questa fase è caratterizzata dall 'uso delle due funzioni animazioneBracciaPersonaggio e Teletrasporto, che tramite degli if e degli else if vengono usate in maniera alternata.
+-statoCombattimento == 1  : I due combattenti concludono il combattimento fisico. Avviene uno spostamento dei due personaggi sugli assi y e z che li vede man mano allontanarsi.
+-statoCombattimento == 2  : Una volta allontanati, i due iniziano a creare le loro rispeettivamente sfere: la sfera Genkidama per Goku; il final Flash per Vegeta.
+-statoCombattimento == 3  : Terminata la creazione dei due attacchi energetici, vegnono lanciati.
+-statoCombattimento == 4  : In questa fase le due "onde" si toccano e man mano la sfera Genkidama prevale sul final Flash
+-statoCombattimento == 5  : Fase finale, Vegeta viene polverizzato dalla sfera Genkidama
+-statoCombattimento == 6  : Combattimento concluso: la sfera Genkidama lentamente si dissolve.
+-statoCombattimento == 7  : la sfera viene completamente rimossa, Goku ha vinto e si pone al centro della Stanza.
+
+##### animazione Pugni
+L'animazione dei pugni è stata fatta tramite la funzione animazioneBracciaPersonaggio
+#### Animazioni sfera Genkidama
+##### Animazione  crescita sfera Genkidama
 Abbiamo riprodotto la sfera genkidama che pian piano si ingrandisce (attraverso uno scale), per renderla simile a quella reale abbiamo fatto in modo da far veicolare delle mini sfere di energia verso il centro della sfera.
 Le sfere una volta arrivate nel centro vengono spostate in una posizione esterna (al posto di eliminare ogni sfera e crearne una nuova). Alla fine dell' "ingrandimento" della sfera genkidama queste sfere di energia vengono rimosso dalla scena.
+
+##### Animazione disgregamento sfera Genkidama
+In seguito alla caduta della sfera verso Vegeta, abbiamo simulato la sua disgregazione partendo dal centro del corpo di Vegeta in direzione dell'asse z di quest'ultimo, dando idea del colpo che trapassa il suo corpo. Per fare questo abbiamo usato la funzione esplosioneCono, la quale creati un numero fissato di piccoli cubi li sposta idealmente dentro un Cono molto velocemente. Alcuni problemi sono sorti nell'eliminazione di questi piccoli cubi una volta terminata l'animazione. La soluzione è stata sfruttare il paramentro children per trovare l'elemento pivotCono che faceva parte dell'oggetto Vegeta ed eliminarlo tramite un for.

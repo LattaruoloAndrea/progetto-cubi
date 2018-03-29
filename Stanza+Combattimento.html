@@ -814,7 +814,6 @@
 
 				tempoCombattimento = tempoCombattimento + secondo;
 				if( tempoF > 100 ){
-					console.log(tempoF);
 					statoCombattimento = 0;
 			}}
 
@@ -981,13 +980,15 @@
 							//un intero maggire per velocita dimisnuisce la velocita
 							}
 					} else {
-						//rimuovo le sfere
-						if(pivotCono.children[0]!= undefined){
-							//non funge
-							console.log("here");
+						// //rimuovo le sfere
+						// if(pivotCono.children[0] != undefined){
+						// 	//non funge
+						// N.B prova a ragionare sui figli di vegeta e su che figlio è il pivotCono.
+						// io ho messo il 6 ma non funge, forse bisognava solo ragionare un attimo a mano
 							for(var i = 0;i <= numEnerr; i++){
-								pivotCono.remove(pivotCono.children[i]);
-							}}
+								Vegeta.children[6].remove(Vegeta.children[6].children[i]);
+								// console.log("here");
+							}
 						statoCombattimento = 7;
 					}
 				}
@@ -1095,7 +1096,7 @@
 			if(creaEnergia){
 				creaEnergia = false;
 				var dim = 1;
-				for(var i=0;i<numEnergie;i++){
+				for(var i = 0;i < numEnergie; i++){
 					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
 					energia.position.set(pivotIniziale.position.x,pivotIniziale.position.y,pivotIniziale.position.z);
 					pivotIniziale.add(energia);
@@ -1161,7 +1162,8 @@
 						 classeCl.p[i] -= (classeCl.lato*gap)/(classeCl.h*2*Math.PI);
 				 }
 				 else{
-						 classeCl.p[i]+=(classeCl.lato*gap)/(classeCl.h*2*Math.PI);
+
+				classeCl.p[i]+=(classeCl.lato*gap)/(classeCl.h*2*Math.PI);
 				 }
 				 if(i == classeCl.startt) {
 					 classeCl.tempo[i] += angolo/(2.0*Math.PI);
