@@ -7,7 +7,7 @@ La costruzione generale di ogni oggetto della scena parte dalle due funzioni bas
 
 ### Costruzione degli oggetti della scena
 #### Clessidre
-- Le clessidre sono un insieme di cubi che formano rispettivamento la base, la parte superiore e la parte di vetro, creata tramite l'unione di due identici blocchi di vetro, di cui uno ruotato di 180 gradi rispetto all'asse x. Lo stesso meccanismo è stato adottato anche per la costruzione della parte superiore della  clessidra e del basamento dei palloncini. Inizialmente la scelta del colore era ricaduta sull'uso di una texture Oro, poi rimossa per questione di calcolo computazionale. La costruzione della clessidra si basa su queste funzioni:
+Le clessidre sono un insieme di cubi che formano rispettivamento la base, la parte superiore e la parte di vetro, creata tramite l'unione di due identici blocchi di vetro, di cui uno ruotato di 180 gradi rispetto all'asse x. Lo stesso meccanismo è stato adottato anche per la costruzione della parte superiore della  clessidra e del basamento dei palloncini. Inizialmente la scelta del colore era ricaduta sull'uso di una texture Oro, poi rimossa per questione di calcolo computazionale. La costruzione della clessidra si basa su queste funzioni:
 - costruzioneClessidra, che riceve i parametri pivotClessidra, che permette lo spostamento dell'intera clessidra; altezzaCl, ovvero l'altezza della parte di vetro della clessidra; mul, utilizzato in tutti i successivi parametri per poter scalare la clessidra in basse alle esigenze; colSabbia, il colore della sabbia; clessClass   
 - creaBaseClessidra, che riceve il solo pramentro m, cioè la mul precedente, e crea le due basi da porre sopra e sotto la zona di vetro.
 - creaVetroClessidra, che riceve il solo paramentro mul e crea tutta la parte centrale di vetro della clessidra, facendo uso anche della funzione metaVetroClessidra, la quale restituisce una metà del vetro della clessidra, che si compone di due identiche metà, una ribaltata di 180 gradi sul suo asse x ed entrambe poi poste tra un piccolo cubo posto al centro che completa il vetro della clessidra.
@@ -50,7 +50,7 @@ La foresta è stata costrutita tramite la funzione creaForesta, la quale, in bas
  Il merging dei due file dopo la pulizia di quello singolo non è stato troppo complicato  un copia incolla un po generale e il risultato andava. Alla fine abiamo ridotto il numero dei granelli all'interno delle clesside per avere una fluibilità migliore della scena.
 
 #### Animazione Combattimento
-L'animazione del combattimento è stata trattata tramite la funzione animazioneCombattimento, la quale fa uso di diverse funzioni più elementar, descritte in seguito, volte a semplificare e struttrare meglio il lavoro. In generale la funzione prevedeve un "passaggio" da uno stato di combattimento ad un'altro tramite la variabile statoCombattimento, la quale viene aggiornata a +1 ogni qual volta il combattimento cambiava. Le fasi del coombattimento sono 8:
+L'animazione del combattimento è stata trattata tramite la funzione animazioneCombattimento, la quale fa uso di diverse funzioni più elementari, descritte in seguito, volte a semplificare e struttrare meglio il lavoro. In generale la funzione prevedeve un "passaggio" da uno stato di combattimento ad un'altro tramite la variabile statoCombattimento, la quale viene aggiornata a +1 ogni qual volta il combattimento cambiava. Le fasi del coombattimento sono 8:
 - statoCombattimento == -1 : qui inizialmente i due combattenti sono fermi uno di fronte all'altro per un tempo fissato.
 - statoCombattimento == 0  : inizia il vero e proprio combattimento, fatti di molteplici pungni e rapidissime fasi di teletrasporto, che spiegheremo nel dettaglio successivamente. Questa fase è caratterizzata dall 'uso delle due funzioni animazioneBracciaPersonaggio e Teletrasporto, che tramite degli if e degli else if vengono usate in maniera alternata.
 -statoCombattimento == 1  : I due combattenti concludono il combattimento fisico. Avviene uno spostamento dei due personaggi sugli assi y e z che li vede man mano allontanarsi.
@@ -60,10 +60,12 @@ L'animazione del combattimento è stata trattata tramite la funzione animazioneC
 - statoCombattimento == 5  : Fase finale, Vegeta viene polverizzato dalla sfera Genkidama
 - statoCombattimento == 6  : Combattimento concluso: la sfera Genkidama lentamente si dissolve.
 - statoCombattimento == 7  : la sfera viene completamente rimossa, Goku ha vinto e si pone al centro della Stanza.
+Le animazioni interne al combattimento sono le seguenti:
 
-##### animazione Pugni
-L'animazione dei pugni è stata fatta tramite la funzione animazioneBracciaPersonaggio
-#### Animazioni sfera Genkidama
+- animazione Pugni
+L'animazione dei pugni è stata fatta tramite la funzione animazioneBracciaPersonaggio, la quale contemporaneamente sposta le braccia sull'asse z e ruota l'ancoraggio delle braccia di un angolazione random
+
+- Animazioni sfera Genkidama
 ##### Animazione  crescita sfera Genkidama
 Abbiamo riprodotto la sfera genkidama che pian piano si ingrandisce (attraverso uno scale), per renderla simile a quella reale abbiamo fatto in modo da far veicolare delle mini sfere di energia verso il centro della sfera.
 Le sfere una volta arrivate nel centro vengono spostate in una posizione esterna (al posto di eliminare ogni sfera e crearne una nuova). Alla fine dell' "ingrandimento" della sfera genkidama queste sfere di energia vengono rimosso dalla scena.
