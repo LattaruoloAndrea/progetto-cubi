@@ -1,0 +1,1302 @@
+<html>
+<head>
+	<title>Stanza dello Spirito e del Tempo</title>
+	<style>
+
+	body {
+		font-family: Monospace;
+		background-color: #f0f0f0;
+		margin: 0px;
+		overflow: hidden;
+	}
+
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+
+	</style>
+	<script src = "lib/three.min.js"></script>
+	<script src = "lib/stats.min.js"></script>
+	<script src = "lib/Coordinates.js"></script>
+	<script src = "lib/OrbitControls.js"></script>
+	<script src = "lib/OBJLoader.js"></script>
+
+</head>
+<body>
+
+	<script>
+
+	var scene, camera, renderer, controls, stats;
+	var l,ClessidraSx,classeClessidraSx,ClessidraDx,classeClessidraDx, poltrona;
+	var dimSabbia = 2;
+	var gap = 1,angolo = 2.0;
+	var Goku, Vegeta, arena, sferaG,pivotEnergie,pivotSferaG,pivotCono, finalFlash1, finalFlash2, posizioneVegeta = 0;;
+	var sferaGenkidama, latoGenkidama = 1, latoF = 1, latoFinalFlash = 1;
+	var valoreDiSpostamentoBraccioDX = 0, valoreDiSpostamentoBraccioSx = 2, statoBraccio = 0;
+	var tempoR = 0, tempoC = 0, tempoF = 0, secondo = 1, tempoCombattimento = 0;
+	var statoRotazione = 0, statoTeletrasporto = 0, statoCombattimento = -1;
+	var creaEnergia = true,puntoFinale=[],creaPuntiFinali=true,numEner = 200,numEnerr = 400;
+
+	//return array with height data from img, taken from: http://danni-three.blogspot.it/2013/09/threejs-heightmaps.html
+	function getHeightData(img,scale) {
+
+		if (scale == undefined) scale=1;
+
+		var canvas = document.createElement( 'canvas' );
+		canvas.width = img.width;
+		canvas.height = img.height;
+		var context = canvas.getContext( '2d' );
+
+		var size = img.width * img.height;
+		console.log(size);
+		var data = new Float32Array( size );
+
+		context.drawImage(img,0,0);
+
+		for ( var i = 0; i < size; i ++ ) {
+			data[i] = 0
+		}
+
+		var imgd = context.getImageData(0, 0, img.width, img.height);
+		var pix = imgd.data;
+
+		var j=0;
+		for (var i = 0; i<pix.length; i +=4) {
+			var all = pix[i]+pix[i+1]+pix[i+2];  // all is in range 0 - 255*3
+			data[j++] = scale*all/3;
+		}
+		return data;
+	}
+
+	function Start() {
+		scene = new THREE.Scene();
+		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+		renderer = new THREE.WebGLRenderer( {antialias: true} );
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.setClearColor( 0xf0f0f0 );
+		document.body.appendChild( renderer.domElement );
+		camera.position.set(850,200*10,350);
+		//camera.rotation.set(0,Math.PI*90/180,Math.PI*90/180);
+		camera.lookAt( new THREE.Vector3(1000,1000,1000));
+
+		// Costruzione terreno
+		var geometry = new THREE.PlaneGeometry(10000,10000);
+		var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
+		var terreno = new THREE.Mesh(geometry, material);
+
+		// Creazione Stanza dello Spirito e del Tempo
+		StanzaSpiritoDelTempo = new THREE.Object3D();
+		creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo);
+
+		// LUCI
+		var amLight = new THREE.AmbientLight(0xffffff, 1);
+		StanzaSpiritoDelTempo.rotation.set(0,Math.PI*90/180,0);
+		StanzaSpiritoDelTempo.position.set(700,130*15,350);//(500,130,250);
+		scene.add( StanzaSpiritoDelTempo, amLight);
+
+		stats = new Stats();
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.top = '0px';
+		document.body.appendChild( stats.domElement );
+
+		// uncomment if you need to draw coordinate axes when building the scene
+		//Coordinates.drawAllAxes();
+
+		controls = new THREE.OrbitControls( camera );
+		controls.addEventListener( 'change', Render );
+
+		var terreno = new THREE.Object3D();
+
+		var img = new Image();
+		img.onload = function () {
+
+			//get height data from img
+			var data = getHeightData(img);
+			terreno =createTerrain(15,15,15,data,"textures/11635.jpg");
+			scene.add(terreno);
+		}
+		// load img source
+		//img.src = "textures/heightmap2.png";
+	}
+
+		function creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo){
+
+			// Creazione Piano della Stanza dello Spirito e del Tempo
+			TerrenoStanza = new THREE.Object3D();
+			var altezzaPianiTerreno = 3;
+			var basamentoMaxVerticale = 200;
+			var basamentoMinVerticale = 60;
+			var basamentoMaxOrizzontale = 350;
+			var basamentoMinOrizzontale = 100;
+			costruzionePiantaStanza(TerrenoStanza, altezzaPianiTerreno, basamentoMaxVerticale,
+				basamentoMinVerticale, basamentoMaxOrizzontale, basamentoMinOrizzontale);
+
+				// Creazione Stanza
+				var Stanza = new THREE.Object3D();
+				var moltiplicatoreStanza = 1;
+				var altezzaSuperficie = moltiplicatoreStanza*30;
+				var r = 30;
+				var dimensioneCupola = 5;
+				costruzioneStanza(Stanza, altezzaSuperficie, moltiplicatoreStanza, r, dimensioneCupola);
+				Stanza.position.set(0,22, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				// Creazione camere
+				// camera Dx
+				var cameraDx = new THREE.Object3D();
+				var altezzaCamere = 20;
+				var larghezzaCamere = 70;
+				var profonditaCamere = 40;
+				costruzioneCamera(cameraDx, larghezzaCamere, altezzaCamere, profonditaCamere);
+				cameraDx.position.set(r + dimensioneCupola + larghezzaCamere/2,18, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				// camera Sx
+				var cameraSx = new THREE.Object3D();
+				costruzioneCamera(cameraSx, larghezzaCamere, altezzaCamere, profonditaCamere);
+				cameraSx.position.set(-(r + dimensioneCupola + larghezzaCamere/2),18, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				// Creazione clessidre
+				// Clessidra Sinistra
+				ClessidraSx = new THREE.Object3D();
+				classeClessidraSx = new clessidraClass();
+				var moltiplicatoreDim = 3;
+				var altezzaClessidra = moltiplicatoreDim * 20;
+				costruzioneClessidra(ClessidraSx, altezzaClessidra, moltiplicatoreDim,0x32cd32,classeClessidraSx);
+				ClessidraSx.position.set(basamentoMaxOrizzontale/2 - 40, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				// Clessidra Destra
+				ClessidraDx = new THREE.Object3D();
+				classeClessidraDx = new clessidraClass();
+				costruzioneClessidra(ClessidraDx, altezzaClessidra, moltiplicatoreDim,0x32cd32,classeClessidraDx);
+				ClessidraDx.rotation.set(180*Math.PI/180,0,0);
+				ClessidraDx.position.set(-(basamentoMaxOrizzontale/2 - 40), 3*altezzaPianiTerreno+altezzaClessidra, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				// Creazione palloncini laterali
+				// Pallocino Sinistro
+				PalloncinoSx = new THREE.Object3D();
+				var moltiplicatoreDimP = 1;
+				var altezzaPalloncino = moltiplicatoreDimP * 21;
+				costruzionePalloncino(PalloncinoSx, altezzaPalloncino, moltiplicatoreDimP);
+				PalloncinoSx.position.set(basamentoMaxOrizzontale/2 - 20, 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				// Palloncino Destro
+				PalloncinoDx = new THREE.Object3D();
+				costruzionePalloncino(PalloncinoDx, altezzaPalloncino, moltiplicatoreDimP);
+				PalloncinoDx.position.set(-(basamentoMaxOrizzontale/2 - 20), 3*altezzaPianiTerreno, -(basamentoMaxVerticale/2 + (basamentoMinOrizzontale/3)));
+
+				Foresta = new THREE.Object3D();
+				creaForesta(0.5, Foresta);
+
+				Goku = new THREE.Object3D();
+				Vegeta = new THREE.Object3D();
+				pivotSferaG = new THREE.Object3D();
+				pivotEnergie = new THREE.Object3D();
+				pivotCono = new THREE.Object3D();
+				var moltiplicatoreDimPersonaggio = 1;
+				creaPersonaggio(Goku, "textures/Goku/shirt.png", "textures/Goku/pants.png", moltiplicatoreDimPersonaggio);
+				creaPersonaggio(Vegeta, "textures/Vegeta/corpo.png", "textures/Vegeta/gambe.png", moltiplicatoreDimPersonaggio);
+				Goku.position.set(-3,18,0);
+				Goku.rotation.set(0,90*Math.PI/180,0);
+				Vegeta.position.set(3,18,0);
+				Vegeta.rotation.set(0,-90*Math.PI/180,0);
+				sferaG = creaQuadrilateroTrasparente(latoGenkidama,latoGenkidama, latoGenkidama, 0x00bfff, 0.4);
+				finalFlash1 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
+				finalFlash2 = creaQuadrilateroTrasparente(latoF,latoF, latoF, 0xffff00, 0.5);
+				sferaGenkidama = new THREE.Object3D();
+				sferaGenkidama.add(sferaG);
+				arena = new THREE.Object3D();
+				arena.add(Goku, Vegeta);
+				// Gestione scena-pivot
+				StanzaSpiritoDelTempo.add(TerrenoStanza, ClessidraDx, ClessidraSx, PalloncinoDx, PalloncinoSx, Stanza, cameraDx, cameraSx, arena, Foresta);
+		}
+
+		function createTerrain(larghezza,altezza,profondita,arrayAltezze,image){
+			var pivotTerreno = new THREE.Object3D();
+			var material;
+			var positionX = 0;
+			var positionZ = 0;
+			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
+			var texture = new THREE.TextureLoader().load( image);
+			texture.repeat.set(1,1);
+			for(var i=0;i<arrayAltezze.length;i++){//
+				if(image==undefined){
+						material = new THREE.MeshLambertMaterial({color:0Xa0522d});
+						//colre marroncino
+				}
+				else{
+					material = new THREE.MeshLambertMaterial({map:texture});
+				}
+				var cubeGeometry = new THREE.BoxBufferGeometry(larghezza,arrayAltezze[i]*altezza,profondita);
+				var cube = new THREE.Mesh(cubeGeometry,material);
+				cube.castShadow = true;
+				cube.receiveShadow = true;
+				cube.position.set(positionX,arrayAltezze[i]*altezza/2,positionZ);
+				pivotTerreno.add(cube);
+				if(positionX+larghezza<lato*larghezza){
+					positionX +=larghezza;
+				}
+				else{
+					positionX = 0;
+					if(positionZ+profondita<lato*profondita){
+						positionZ +=profondita;
+					}
+					else{
+						positionZ = 0;
+					}
+				}
+			}
+			pivotTerreno.position.set(-lato/2,0,-lato/2);
+			return pivotTerreno;
+		}
+
+		function costruzionePiantaStanza(obj, height,  basamentoMaxV,	basamentoMinV, basamentoMaxO, basamentoMinO){
+
+			// Piani TerrenoStanza
+			var piantaVerticale = creaPiantaVert(height, basamentoMaxV, basamentoMinV);
+			var piantaOrizzontale = creaPiantaOrizz(height, basamentoMaxO, basamentoMinO);
+			piantaOrizzontale.rotation.set(0,90*Math.PI/180,0);
+			piantaOrizzontale.position.set(0,0,-(basamentoMaxV/2 + basamentoMinV/2));
+			obj.add(piantaVerticale, piantaOrizzontale);
+		}
+
+		function creaPiantaVert(h, bM, bm){
+
+			var pivotPianta = new THREE.Object3D();
+			var d = 10;
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza2.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza2.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza2.jpg");
+			plane1.position.set(0,0,0);
+			plane2.position.set(0, h,-d);
+			plane3.position.set(0,2*h,-2*d);
+			pivotPianta.add(plane1, plane2, plane3);
+			return pivotPianta;
+		}
+
+		function creaPiantaOrizz(h, bM, bm){
+
+			var pivotPianta = new THREE.Object3D();
+			var d = 10;
+			var plane1 = creaQuadrilatero(bm, h, bM, null, "textures/terrenoStanza2.jpg");
+			var plane2 = creaQuadrilatero(bm - d, h, bM - d, null, "textures/terrenoStanza2.jpg");
+			var plane3 = creaQuadrilatero(bm - 2*d, h, bM - 2*d, null, "textures/terrenoStanza2.jpg");
+			plane1.position.set(0,0,0);
+			plane2.position.set(0, h,0);
+			plane3.position.set(0,2*h,0);
+			pivotPianta.add(plane1, plane2, plane3);
+			return pivotPianta;
+		}
+
+		function clessidraClass(arrayPosizioni,star,end,posY,tempo,pSpirale,lato,altezzaClessidra,count,inverso){
+			//classe per il salvataggio di informazioni utili di una classe
+			if(arrayPosizioni==undefined){
+				this.arrayPosizioni = [];
+				this.startt = 0;
+				this.end = 0;
+				this.tempo = [];
+				this.posIesimaY = [];
+				this.p = [];
+				this.lato = 0;
+				this.h=0;
+				this.count=0;
+				this.inverso = true;
+			}
+			else{
+				this.arrayPosizioni = arrayPosizioni;
+				this.startt = star;
+				this.end = end;
+				this.tempo = tempo;
+				this.posIesimaY = posY;
+				this.p = pSpirale;
+				this.lato = lato;
+				this.h=altezzaClessidra;
+				this.count=count;
+				this.inverso = inverso;
+			}
+		}
+
+		function sabbia(larghezza,altezza,profondita,dimBase,colore,mul,arrayPosGrane){
+			//arrayPosGrane serve per salvare le posizioni dei pivot
+			var materialeGranello;
+			var numGranello = 0;
+			var grane = [];
+			var xD =-larghezza*dimSabbia/2+dimSabbia/2,yD=6-1+dimSabbia/2,zD=-larghezza*dimSabbia/2+dimSabbia/2;
+			//var xD=-dimBase*larghezza/2,yD=6-1+dimSabbia/2,zD=-dimBase*larghezza/2;//-dimSabbia
+			for(var i=0;i<altezza;i++){
+				for(var j=0;j<larghezza;j++){
+					for(var k=0;k<profondita;k++){
+						var granello = creaQuadrilatero(dimSabbia,dimSabbia,dimSabbia,colore);
+						granello.position.set(xD,yD,zD);
+						arrayPosGrane.push(new THREE.Vector3(xD,yD,zD));
+						grane.push(granello);
+						numGranello += 1;
+						xD += dimSabbia;
+					}
+					xD=-larghezza*dimSabbia/2+dimSabbia/2;
+					zD +=dimSabbia;
+				}
+				zD=-larghezza*dimSabbia/2+dimSabbia/2;
+				yD+=dimSabbia;
+			}
+			return grane;
+		}
+
+		function initializeClessidraClass(clessClass,arrayPos,start,mul){
+			clessClass.startt = start-1;
+			clessClass.end =start-1;
+			clessClass.lato = l;
+			clessClass.h = mul*15;
+			clessClass.count=0;
+			clessClass.inverso = false;
+			for(var i=0;i<start;i++){
+				clessClass.arrayPosizioni.push(arrayPos[i]);
+				clessClass.posIesimaY.push(0);
+				clessClass.p.push(0);
+				clessClass.tempo.push(0);
+			}
+		}
+
+		function costruzioneClessidra(pivotClessidra, altezzaCl, mul,colSabbia,clessClass){
+			//crea una clessidra
+			var base = creaBaseClessidra(mul);
+			var tetto = creaBaseClessidra(mul);
+			tetto.rotation.set(180*Math.PI/180,0,0);
+			tetto.position.set(0,altezzaCl,0);
+			var vetro = creaVetroClessidra(mul);
+			var hh = 3;
+			var ll = 7;
+			var dd = 7;
+			var granelli = [],arrayPosGrane = [],posY=[],tempo = [],pEll =[];
+			granelli = sabbia(ll,hh,dd,l-1,colSabbia,mul,arrayPosGrane);
+			initializeClessidraClass(clessClass,arrayPosGrane,granelli.length,mul);
+			var pivotGranelli = new THREE.Object3D();
+			for(var i=0;i<granelli.length;i++){
+				pivotGranelli.add(granelli[i]);
+			}
+			pivotGranelli.position.set(0,2,0);
+			pivotClessidra.add(vetro, base, tetto,pivotGranelli);//,pivotGranelli
+		}
+
+		function creaBaseClessidra(m){
+			pivot = new THREE.Object3D();
+			var height = m*1;
+			var basamento = m*3;
+			var colorBase = 0xdaa520; // ORO
+			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase);
+			var livBase2 = creaQuadrilatero(basamento + m*1,height, basamento + m*1,colorBase);
+			var livBase3 = creaQuadrilatero(basamento + m*2,height,basamento + m*2,colorBase);
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			pivot.add(livBase1,livBase2,livBase3);
+			return pivot;
+		}
+
+		function creaVetroClessidra(m){
+
+			// Unione pezzi clessidra
+			pivotVetroClessidra = new THREE.Object3D();
+			var dimensioneLato = 5;
+			var posizioneVetro = m*5;
+			var opacitaCentro = 0.2;
+			// parte sotto
+			metaClessidra1 = metaVetroClessidra(dimensioneLato, m);
+			// parte sopra
+			metaClessidra2 = metaVetroClessidra(dimensioneLato, m);
+			// Regolazione parti sopra-sotto
+			metaClessidra1.position.set(0,posizioneVetro,0);
+			metaClessidra2.position.set(0,3*posizioneVetro,0);
+			metaClessidra2.rotation.set(180*Math.PI/180,0,0);
+			// Parte centrale
+			centroClessidra = creaQuadrilateroTrasparente(m*1,m*1,m*1,0x0000ff, opacitaCentro);
+			centroClessidra.position.set(0,2*posizioneVetro,0);
+			pivotVetroClessidra.add(metaClessidra1, metaClessidra2, centroClessidra);
+			return pivotVetroClessidra;
+		}
+
+		function metaVetroClessidra(l, m){
+			pivot = new THREE.Object3D();
+			var altezzaVetri = m*1;
+			var colorBase = 0x0000ff;
+			var opacitaVetro = 0.2;
+			var metaVetro = creaQuadrilateroTrasparente(m*l,m*l,m*l,colorBase, opacitaVetro);
+			var metaVetro1 = creaQuadrilateroTrasparente(m*(l-1), altezzaVetri, m*(l-1),colorBase, opacitaVetro);
+			var metaVetro2 = creaQuadrilateroTrasparente(m*(l-2), altezzaVetri, m*(l-2),colorBase, opacitaVetro);
+			metaVetro1.position.set(0,m*2 + altezzaVetri,0);
+			metaVetro2.position.set(0,m*2 + 2*altezzaVetri,0);
+			pivot.add(metaVetro, metaVetro1, metaVetro2);
+			return pivot;
+		}
+
+		function costruzionePalloncino(pivotPalloncino, altezzaP, mul){
+
+			var latoSfera = 5;
+			var baseP = creaBasePalloncino(mul);
+			var tettoP = creaBasePalloncino(mul);
+			var astaP = creaAstaPalloncino(mul, altezzaP);
+			var sfera = creaSfera(mul, latoSfera, 0x00008d);
+			tettoP.rotation.set(180*Math.PI/180,0,0);
+			tettoP.position.set(0,altezzaP,0);
+			astaP.position.set(0,altezzaP/2,0);
+			sfera.position.set(0,altezzaP + 1, 0);
+			pivotPalloncino.add(baseP, tettoP, astaP, sfera);
+
+		}
+
+		function creaBasePalloncino(m){
+
+			pivot = new THREE.Object3D();
+			var height = m*1;
+			var basamento = m*2;
+			var colorBase = 0xdaa520; // ORO
+			var livBaseP1 = creaQuadrilatero(basamento,height,basamento,colorBase);
+			var livBaseP2 = creaQuadrilatero(basamento - m*1,height, basamento - m*1,colorBase);
+			livBaseP2.position.set(0,height,0);
+			pivot.add(livBaseP1, livBaseP2);
+			return pivot;
+		}
+
+		function creaAstaPalloncino(m, hp){
+			var height = hp - (m*2 + 1);
+			var basamento = m*1;
+			var colorBase = 0xaaaaaa;
+			var astaP = creaQuadrilatero(basamento,height,basamento,colorBase);
+			return astaP;
+		}
+
+		function creaSfera(moltiplicatore, lato, color){
+			var Sphere = new THREE.Object3D();
+			var colorPal = color;
+			var metaSfera1 = creaMetaSfera(moltiplicatore ,lato, colorPal);
+			var metaSfera2 = creaMetaSfera(moltiplicatore ,lato, colorPal);
+			metaSfera2.position.set(0,moltiplicatore*8 + 1,0);
+			metaSfera2.rotation.set(180*Math.PI/180,0,0);
+			Sphere.add(metaSfera1, metaSfera2);
+			return Sphere;
+		}
+
+		function creaMetaSfera(m, lato, color){
+			pivotPalla = new THREE.Object3D();
+			var height = m*1;
+			var opacitaPalloncino = 0.7;
+
+			var livBase1 = creaQuadrilateroTrasparente(m*lato, height, m*lato,color, opacitaPalloncino);
+			var livBase2 = creaQuadrilateroTrasparente(m*lato + m*1,height, m*lato + m*1,color, opacitaPalloncino);
+			var livBase3 = creaQuadrilateroTrasparente(m*lato + m*2,height,m*lato + m*2,color, opacitaPalloncino);
+			var livBase4 = creaQuadrilateroTrasparente(m*lato + m*3,height,m*lato + m*3,color, opacitaPalloncino);
+			var livBase5 = creaQuadrilateroTrasparente(m*lato + m*4,height,m*lato + m*4,color, opacitaPalloncino);
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			livBase4.position.set(0,3*height,0);
+			livBase5.position.set(0,4*height,0);
+			pivotPalla.add(livBase1,livBase2,livBase3,livBase4, livBase5);
+			return pivotPalla;
+		}
+
+		function costruzioneStanza(Stanza, altezzaSup, mul, raggio, dimCupola){
+			var dimSuperficie = 1;
+			var Cupola = costruzioneCupola( mul, raggio, dimCupola);
+			Cupola.position.set(0,altezzaSup - 12,0);
+			var Superficie = costruzioneSuperficie(altezzaSup, mul, raggio, dimSuperficie, dimCupola);
+			poltrona = new THREE.Object3D();
+			creaPoltrona(1);
+			poltrona.position.set(-raggio/2,-altezzaSup/2 + 5,0);
+			poltrona.rotation.y = 15*Math.PI/180;
+			Stanza.add(Cupola, Superficie, poltrona);
+			return Stanza;
+		}
+
+		function costruzioneCupola( m, braccio, lato){
+			var cupola = new THREE.Object3D();
+			var DimbasamentoCupola = 2*braccio;
+			var height = 3;
+			var i = 0*Math.PI/180;
+			var j = 0;
+			var valoreMax = 15;
+			while( j < valoreMax){
+				while( i < 360*Math.PI/180){
+					var basamentoCupola = creaQuadrilatero(2*m*lato, height, m*lato, 0xdaa520);
+					basamentoCupola.position.set(Math.cos(i)*(braccio-j),j,-(Math.sin(i)*(braccio-j)));
+					cupola.add(basamentoCupola);
+					i += 15*Math.PI/180;
+				}
+				j += height;
+				i = 0*Math.PI/180;
+			}
+
+			// Parte superiore: chiusra cupola + pallocino
+			var chiusuraCupola = creaQuadrilatero(DimbasamentoCupola - (valoreMax + 3*lato), height, DimbasamentoCupola - (valoreMax + 3*lato), 0xdaa520);
+			chiusuraCupola.position.set(0,valoreMax,0);
+			var cubo = creaQuadrilatero(valoreMax-1*lato,valoreMax-1*lato,valoreMax-1*lato, 0xdaa520);
+			cubo.position.set(0,valoreMax + height- 1,0);
+			// pallocino
+			var cupolino = creaPuntaClessidra(5);
+			cupolino.position.set(0,valoreMax + 2*height - 1,0);
+			cupola.add(chiusuraCupola, cupolino, cubo);
+			return cupola;
+		}
+
+		function creaPuntaClessidra(m){
+			pivot = new THREE.Object3D();
+			var height = m*(1/2);
+			var basamento = m*2;
+			l = basamento;
+			var colorBase = 0xdaa520; // ORO
+			var livBase1 = creaQuadrilatero(basamento,height,basamento,colorBase);
+			var livBase2 = creaQuadrilatero(basamento - m*(1/2),height, basamento - m*(1/2),colorBase);
+			var livBase3 = creaQuadrilatero(basamento - m*1,height,basamento - m*1,colorBase);
+			livBase2.position.set(0,height,0);
+			livBase3.position.set(0,2*height,0);
+			pivot.add(livBase1,livBase2,livBase3);
+			return pivot;
+		}
+
+		function costruzioneSuperficie(hS, m, braccio, lato, cup){
+			var superficie = new THREE.Object3D();
+			var i = -15*Math.PI/180;
+			var colorSup = 0xdcdcdc;
+			while(i < 195*Math.PI/180){
+				var colonna = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup);
+				colonna.position.set(Math.cos(i)*(braccio + cup),0,-(Math.sin(i)*(braccio + cup)));
+				superficie.add(colonna);
+				i += 2*Math.PI/180;
+			}
+
+			var j = 0*Math.PI/180;
+			while(j < 360*Math.PI/180){
+				var bordo = creaQuadrilatero(2*m*lato, 2*m*lato, m*lato,colorSup);
+				bordo.position.set(Math.cos(j)*(braccio + cup),hS/2,-(Math.sin(j)*(braccio + cup)));
+				superficie.add(bordo);
+				j += 2*Math.PI/180;
+			}
+
+			// Colonnine frontali separate dalle altre
+			var colonna1 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup, "textures/terrenoStanza2.jpg");
+			colonna1.position.set(Math.cos(220*Math.PI/180)*(braccio + cup),0,-(Math.sin(220*Math.PI/180)*(braccio + cup)));
+			var colonna2 = creaQuadrilatero(2*m*lato, hS, m*lato,colorSup, "textures/terrenoStanza2.jpg");
+			colonna2.position.set(Math.cos(-50*Math.PI/180)*(braccio + cup),0,-(Math.sin(-50*Math.PI/180)*(braccio + cup)));
+
+			// Porta
+			var porta = creaQuadrilatero(hS/2, hS*(2/3) - 1, m*lato,0x412000);
+			porta.position.set(0,- hS*(1/6),-(braccio + cup - m*lato));
+
+			// Orologio
+			var orologio = new THREE.Object3D();
+			var quadrante = creaQuadrilatero(hS*(1/3), hS*(1/3), m*lato, 0xffffff);
+			var lancettaOre = creaQuadrilatero(1, hS*(1/6), m*lato, 0x000000);
+			var lancettaMinuti = creaQuadrilatero(1, hS*(1/8), m*lato, 0x000000);
+			var ancoraggioLancetteMinuti = new THREE.Object3D();
+			ancoraggioLancetteMinuti.add(lancettaMinuti);
+			lancettaOre.position.set(0,1.5,1);
+			lancettaMinuti.position.set(0,1,1);
+			ancoraggioLancetteMinuti.rotation.set(0,0, -45*Math.PI/180);
+			orologio.add(quadrante, ancoraggioLancetteMinuti, lancettaOre);
+			orologio.position.set(0, hS/2 + 4,+(braccio + cup + m*lato));
+			superficie.add(colonna1, colonna2, porta, orologio);
+
+			return superficie;
+		}
+
+		function costruzioneCamera(camera, larghCamera, hCamera, pCamera){
+
+			var colorSup = 0xdcdcdc;
+			var cuboCamera = creaQuadrilatero(larghCamera, hCamera, pCamera,colorSup, "textures/terrenoStanza2.jpg");
+			var tetto = new THREE.Object3D();
+			costruzioneTetto(tetto, larghCamera, pCamera);
+			tetto.position.set(0,hCamera/2 + 2,0);
+			camera.add(cuboCamera, tetto);
+			return camera;
+		}
+
+		function costruzioneTetto(tetto, largh, prof){
+			var heightT = 2;
+			var coloreTetto = 0xb22222;
+			for(var i = 0; i < 3; i++){
+				var baseTetto = creaQuadrilatero(largh-(i*3),heightT,prof-(i*3), coloreTetto );
+				baseTetto.position.set(0,heightT*i,0);
+				tetto.add(baseTetto);
+			}
+		}
+
+		function creaForesta(mull, pivotForesta){
+
+			var pivotForesta1 = new THREE.Object3D();
+			var pivotForesta2 = new THREE.Object3D();
+			var pivotForesta3 = new THREE.Object3D();
+
+			var dimensioneTronco = mull*30;
+			var dimensioneFogliame = 2*dimensioneTronco;
+			var numAlberi = 20;
+			var positionX1 = -200;
+			var positionX2 = 0;
+			var positionZ = -200;
+
+			for(var i = 0; i < numAlberi; i++ ){
+				var albero = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
+				albero.position.set(positionX1,0,positionZ);
+				positionX1 += 20;
+				pivotForesta1.add(albero);
+				positionX2 = positionX1;
+			}
+
+			positionX1 = -200;
+			for(var i = 0; i < numAlberi/4; i++ ){
+				var albero2 = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
+				var albero3 = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
+				albero2.position.set(positionX1,0,positionZ);
+				albero3.position.set(positionX2,0,positionZ);
+				positionZ += 20;
+				pivotForesta2.add(albero2);
+				pivotForesta3.add(albero3);
+			}
+
+
+
+			pivotForesta.add(pivotForesta1, pivotForesta2, pivotForesta3);
+		}
+
+		function creaAlbero(mull, dimTronco, dimFogliame){
+			var albero = new THREE.Object3D();
+			var coloreTronco = 0x600000;
+			var coloreFogliame = 0x008000;
+
+			var tronco = creaQuadrilatero(dimTronco/4, dimTronco, dimTronco/4, coloreTronco);
+			var fogliame = new THREE.Object3D();
+
+			creaFogliame(fogliame, mull, dimTronco, dimFogliame, coloreFogliame);
+			fogliame.position.set(0,dimTronco/2 + 1,0);
+			albero.add(tronco, fogliame);
+			return albero;
+		}
+
+		function creaFogliame(f, mull, dimTronco, dimFogliame, color){
+			var basamento = dimTronco/2;
+			var num = 10;
+			var height = dimFogliame/num;
+
+
+			for( var j = 0; j < num ;j++){
+				var livBase = creaQuadrilatero(basamento - mull*j,height ,basamento - mull*j,color);
+				livBase.position.set(0,j*height,0);
+				f.add(livBase);
+			}
+		}
+
+		function creaPoltrona(mul){
+
+			var color = 0xA13F00 ;
+			var colorLat = 0x200000;
+			var base = creaQuadrilatero(4*mul,4*mul,4*mul, color);
+			var lato1 = creaQuadrilatero(1*mul,6*mul,6*mul, colorLat);
+			var lato2 = creaQuadrilatero(1*mul,6*mul,6*mul, colorLat);
+			var poggiaTesta = creaQuadrilatero(6,10,1, colorLat);
+			lato1.rotation.set(90*Math.PI/180,0,0);
+			lato1.position.set(2*mul,1*mul,0);
+			lato2.rotation.set(90*Math.PI/180,0,0);
+			lato2.position.set(-2*mul,1*mul,0);
+			poggiaTesta.position.set(0,3*mul,-2*mul);
+			poltrona.add(base, lato1, lato2, poggiaTesta);
+
+		}
+
+		function creaQuadrilatero(larghezza, altezza, profondita, colore, image){
+			// Costruzione plane generico
+			var geometryPlane = new THREE.BoxBufferGeometry(larghezza, altezza, profondita);
+			//
+			if(image == undefined){
+				var planeMaterial = new THREE.MeshPhongMaterial( { color: colore } );
+				var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			} else {
+				var texture = new THREE.TextureLoader().load( image );
+				var planeMaterial = new THREE.MeshPhongMaterial( { map: texture } );
+				var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			}
+			return plane;
+		}
+
+		function creaQuadrilateroTrasparente(larghezza, altezza, profondita, colore, opacita){
+			// Costruzione plane generico
+			var geometryPlane = new THREE.BoxBufferGeometry(larghezza, altezza, profondita);
+			var planeMaterial = new THREE.MeshPhongMaterial( { color: colore, transparent: true, opacity:opacita} );
+			var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			//var plane = new THREE.Mesh( geometryPlane, planeMaterial );
+			return plane;
+		}
+
+		function creaPersonaggio(personaggio, texture1, texture2, mul){
+
+			// Colori personaggio
+			var color = 0xffffff;       // Bianco
+			var colorHair = 0x000000;   // Nero
+			var colorFace = 0xe9967a;   // Rosa
+			var colorPunch = 0xe9967a;  // Rosa
+			var colorScarpe = 0x00008b; // Blu
+
+			// Dimensioni personaggio
+			var hgamba = 8*mul;
+			var lgamba = 2*mul;
+			var dimOcchio = 0.5*mul;
+			var hbraccio = 7*mul;
+			var lbraccio = 2*mul;
+
+			// Viso: faccia + capelli + bocca + occhi
+			var faccia = new THREE.Object3D();
+			var capelli = creaQuadrilatero(3*mul,1*mul,3*mul,colorHair);
+			var viso = creaQuadrilatero(3*mul,3*mul,3*mul,colorFace);
+			var occhioDx = creaQuadrilatero(dimOcchio,dimOcchio,dimOcchio,colorHair);
+			var occhioSx = creaQuadrilatero(dimOcchio,dimOcchio,dimOcchio,colorHair);
+			var bocca = creaQuadrilatero(3/2*mul,0.5*mul,0.5*mul,colorHair);
+			capelli.position.set(0,2*mul,0);
+			occhioDx.position.set(1*mul,1*mul,3/2*mul);
+			occhioSx.position.set(-1*mul,1*mul,3/2*mul);
+			bocca.position.set(0,-1*mul,3/2*mul);
+			faccia.add(capelli, viso, occhioDx, occhioSx, bocca);
+
+			// Corpo
+			var corpo = creaQuadrilatero(6*mul,9*mul,3*mul,color,texture1);
+
+			// gamba: gamba + scarpa
+			var gambaDx = new THREE.Object3D();
+			var gambaSx = new THREE.Object3D();
+			var bloccoGDx = creaQuadrilatero(lgamba,hgamba,lgamba,color,texture2);
+			var scarpaDx = creaQuadrilatero(lgamba,1*mul,lgamba,colorScarpe);
+			var bloccoGSx = creaQuadrilatero(lgamba,hgamba,lgamba,color,texture2);
+			var scarpaSx = creaQuadrilatero(lgamba,1*mul,lgamba,colorScarpe);
+			scarpaSx.position.set(0,-(hgamba/2 + 0.5*mul),0);
+			scarpaDx.position.set(0,-(hgamba/2 + 0.5*mul),0);
+			gambaDx.add(bloccoGDx,scarpaDx);
+			gambaSx.add(bloccoGSx,scarpaSx);
+
+			// Braccia: braccio + mano
+			var braccioDx = new THREE.Object3D();
+			var braccioSx = new THREE.Object3D();
+			var ancoraBraccioDx = new THREE.Object3D();
+			var ancoraBraccioSx = new THREE.Object3D();
+
+			var bloccoBDx = creaQuadrilatero(lbraccio,hbraccio,lbraccio,color, texture2);
+			var pugnoDx = creaQuadrilatero(lbraccio,1*mul,lbraccio,colorPunch);
+			var bloccoBSx = creaQuadrilatero(lbraccio,hbraccio,lbraccio,color, texture2);
+			var pugnoSx = creaQuadrilatero(lbraccio,1*mul,lbraccio,colorPunch);
+			pugnoDx.position.set(0,hbraccio/2+0.5*mul,0);
+			pugnoSx.position.set(0,hbraccio/2+0.5*mul,0);
+			braccioDx.add(bloccoBDx, pugnoDx);
+			braccioSx.add(bloccoBSx, pugnoSx);
+			ancoraBraccioDx.add(braccioDx);
+			ancoraBraccioSx.add(braccioSx);
+
+
+			personaggio.add(faccia, corpo, gambaDx, gambaSx, ancoraBraccioDx, ancoraBraccioSx);
+			posizionamento(faccia, gambaDx, gambaSx, ancoraBraccioDx, ancoraBraccioSx, mul);
+			return personaggio;
+		}
+
+		function posizionamento(faccia, gambaDx, gambaSx, braccioDx, braccioSx, m){
+
+			faccia.position.set(0,6*m,0);
+			gambaDx.position.set(2*m,-8.5*m,0);
+			gambaSx.position.set(-2*m,-8.5*m,0);
+			braccioDx.position.set(4*m,2.5*m,2*m);
+			braccioSx.position.set(-4*m,2.5*m,2*m);
+			braccioDx.rotation.set(90*Math.PI/180,0,0);
+			braccioSx.rotation.set(90*Math.PI/180,0,0);
+		}
+
+		function animazioneBracciaPersonaggio(personaggio){
+
+			var movimento = 0.6;
+
+			if (statoBraccio == 0){
+				valoreDiSpostamentoBraccioDX += movimento;
+				valoreDiSpostamentoBraccioSx -= movimento;
+				personaggio.children[4].children[0].position.y = valoreDiSpostamentoBraccioDX;    // BraccioDx
+				personaggio.children[5].children[0].position.y = valoreDiSpostamentoBraccioSx;    // BraccioSx
+				if( valoreDiSpostamentoBraccioDX > 2) {statoBraccio = 1;}
+			} else if (statoBraccio == 1 ){
+				valoreDiSpostamentoBraccioDX -= movimento;
+				valoreDiSpostamentoBraccioSx += movimento;
+				personaggio.children[4].children[0].position.y = valoreDiSpostamentoBraccioDX;
+				personaggio.children[5].children[0].position.y = valoreDiSpostamentoBraccioSx;
+				if( valoreDiSpostamentoBraccioDX < 0)
+				{statoBraccio = 0;}
+			}
+		}
+
+		function rotazioneBracciaDinamico(personaggio){
+
+			var rotazioneBraccio = Math.PI/180;
+			var random = Math.floor((Math.random() * 60) + 40);
+
+			personaggio.children[4].rotation.x = rotazioneBraccio*random;    // AncoraBraccioDx
+			personaggio.children[5].rotation.x = rotazioneBraccio*random;    // AncoraBraccioSx
+		}
+
+		function Teletrasporto(combattimento){
+
+			var random = Math.floor(Math.random() * (10 - (-10) + 1)) + (-10);
+			var randomy = Math.floor(Math.random() * (20 - (18) + 1)) + (18);
+			var spostamento = 5;
+			var randomX = spostamento*random;
+			var randomY = spostamento*randomy;		// N.B. y sempre maggiore di 20
+			var randomZ = spostamento*random;
+
+			combattimento.position.set(randomX, randomY, randomZ);
+		}
+
+		function animazioneCombattimento(){
+
+			var randomRotation = Math.random()*360*Math.PI/180;
+
+			var crescitaFinalFlash = 0.25;
+			var latoFinale = 80;
+			var extra = latoFinale - 60;
+			var grow = crescitaFinalFlash;
+			var crescitaSfere = 0.1;
+			var maxLatoF = 12;
+			var TempoCombattimentoPugni = 900;
+
+
+			if (statoCombattimento == -1){
+				tempoF = tempoF + secondo;
+
+				tempoCombattimento = tempoCombattimento + secondo;
+				if( tempoF > 100 ){
+					statoCombattimento = 0;
+			}}
+
+			if(statoCombattimento == 0){
+				if( statoTeletrasporto == 0 ){
+					tempoC = tempoC + secondo;
+					tempoCombattimento = tempoCombattimento + secondo;
+					if( tempoC > 100 ){
+						statoTeletrasporto = 1;
+						Teletrasporto(arena);
+					}
+				} else if ( statoTeletrasporto == 1){
+					tempoC = tempoC - secondo;
+					if( tempoC < 0 ){
+						statoTeletrasporto = 0;
+						Teletrasporto(arena);
+					}
+				}
+				if( statoRotazione == 0 ){
+					tempoR = tempoR + secondo;
+					animazioneBracciaPersonaggio(Goku);
+					animazioneBracciaPersonaggio(Vegeta);
+					if( tempoR > 15 ){
+						statoRotazione = 1;
+						rotazioneBracciaDinamico(Goku);
+						rotazioneBracciaDinamico(Vegeta);
+					}
+				} else if ( statoRotazione == 1){
+					tempoR = tempoR - secondo;
+					animazioneBracciaPersonaggio(Goku);
+					animazioneBracciaPersonaggio(Vegeta);
+					if( tempoR < 0 ){
+						statoRotazione = 0;
+						rotazioneBracciaDinamico(Goku);
+						rotazioneBracciaDinamico(Vegeta);
+					}
+				} if (tempoCombattimento > TempoCombattimentoPugni){
+					statoCombattimento = 1;
+				}}
+
+				if(statoCombattimento == 1 && Goku.position.x > -150 && Vegeta.position.x < 100){
+					Goku.position.x -= 0.5;
+					Goku.position.y += 0.1;
+					Vegeta.position.x += 0.5;
+					Vegeta.position.y -= 0.5;
+					if(Vegeta.position.x >= 100){
+						Goku.children[4].rotation.x = 0*Math.PI/180;    // AncoraBraccioDx
+						Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
+						Goku.children[4].position.y += 2;   						// AncoraBraccioDx
+						Goku.children[5].position.y += 2;    						// AncoraBraccioSx
+						Vegeta.children[4].rotation.z = -90*Math.PI/180;
+						Vegeta.children[5].rotation.z = 90*Math.PI/180;
+						Vegeta.children[4].position.x -= 2;
+
+						statoCombattimento = 2;
+						Vegeta.children[4].add(finalFlash1);
+						Vegeta.children[5].add(finalFlash2);
+						finalFlash1.position.set(0,15,0);
+						finalFlash2.position.set(0,15,0);
+						pivotSferaG.add(pivotEnergie,sferaG);
+						sferaGenkidama.add(pivotSferaG);
+						Goku.add(sferaGenkidama);
+						pivotSferaG.position.set(0,latoFinale,0);
+				}}
+
+				if(statoCombattimento == 2){
+
+					if(latoGenkidama < latoFinale && latoF < maxLatoF){
+						if(latoGenkidama < latoFinale-1 && latoF < maxLatoF - 1){
+							//metto le energie
+							energiaSferaGenkidama(pivotSferaG.children[0],latoGenkidama,0.1,numEner);
+						}else{
+							//rimuovo le energie
+							if(pivotSferaG.children[0].children[0]!= undefined){
+								for(var i = 0;i <= numEner; i++){
+									pivotSferaG.children[0].remove(pivotSferaG.children[0].children[i]);
+								}}
+						}
+
+						latoGenkidama += crescitaSfere;
+						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
+						latoF += crescitaSfere/10;
+						finalFlash1.scale.set(latoF,latoF,latoF);
+						finalFlash2.scale.set(latoF,latoF,latoF);
+						if(latoGenkidama >= latoFinale){
+							statoCombattimento = 3;
+							Vegeta.children[4].rotation.z = 0*Math.PI/180;
+							Vegeta.children[5].rotation.z = 0*Math.PI/180;
+							Vegeta.children[4].rotation.set(45*Math.PI/180,0,0*Math.PI/180);
+							Vegeta.children[5].rotation.set (45*Math.PI/180,0,0*Math.PI/180);
+							Goku.children[4].position.y -= 2;    // AncoraBraccioDx
+							Goku.children[5].position.y -= 2;    // AncoraBraccioSx
+							latoFinalFlash = latoF;
+						}
+					}
+				}
+
+					// Fase combattimento lancio sfere
+				if(statoCombattimento == 3){
+					sferaGenkidama.children[0].remove(pivotEnergie);
+					if(sferaGenkidama.position.y > (Vegeta.position.y + extra)) {
+						sferaGenkidama.position.y -= 0.2;
+						sferaGenkidama.position.z += 0.2;
+						latoFinalFlash += 2*grow;
+						finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
+						finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
+						finalFlash1.position.y += grow;
+						finalFlash2.position.y += grow;
+
+						if(sferaGenkidama.position.y <= (Vegeta.position.y + extra)){
+							statoCombattimento = 4;
+							//console.log(" ho aumentato la lunghezza del raggio del Final Flash a" + latoFinalFlash );
+						}
+					}
+				}
+
+				// Onde incrociate, lentamente la sfera Genkidama deve "surclassare" il final Flash
+				if(statoCombattimento == 4){
+
+					sferaGenkidama.position.y -= grow;
+					sferaGenkidama.position.z += grow;
+					latoFinalFlash -= 2*grow;
+
+					finalFlash1.scale.set(latoF,latoFinalFlash, latoF);
+					finalFlash2.scale.set(latoF,latoFinalFlash, latoF);
+					finalFlash1.position.y -= grow/2;
+					finalFlash2.position.y -= grow/2;
+					if(latoFinalFlash < 0.5 ){
+						statoCombattimento = 5;
+						Vegeta.children[4].remove(finalFlash1);
+						Vegeta.children[5].remove(finalFlash2);
+					}
+				}
+
+				// Fase finale, Vegeta viene polverizzato dalla sfera Genkidama
+				if(statoCombattimento == 5){
+					creaEnergia = true;
+					var velocita = 0.2*60;
+					sferaGenkidama.position.y -= velocita/60;
+					sferaGenkidama.position.z += velocita/60;
+
+					posizioneVegeta += 1;
+					if( posizioneVegeta >= 10*velocita){
+					//	arena.remove(Vegeta);
+						statoCombattimento = 6;
+					}
+					Vegeta.add(pivotCono);
+				}
+
+				// Combattimento concluso: la sfera Genkidama lentamente si dissolve
+				if(statoCombattimento == 6){
+					if( latoGenkidama >= 1 ){
+						var velocita = 0.1*60;
+						sferaGenkidama.position.y -= velocita/60;
+						sferaGenkidama.position.z += velocita/60;
+
+						latoGenkidama -= crescitaSfere*2;
+						sferaG.scale.set(latoGenkidama,latoGenkidama,latoGenkidama);
+						if(latoGenkidama < latoFinale-1 && latoF < maxLatoF - 1){
+							//metto le energie
+							esplosioneCono(pivotCono,200,30,numEnerr);
+							//pivot,raggioCono,velocita,numeroEnergie
+							//un intero maggire per velocita dimisnuisce la velocita
+							}
+					} else {
+						Vegeta.remove(Vegeta.children[6])
+						statoCombattimento = 7;
+					}
+				}
+
+				if(statoCombattimento == 7){
+					sferaGenkidama.children[0].remove(sferaG);
+					Goku.position.set(-3,18,0);
+					Goku.rotation.set(0*Math.PI/180,0,0);
+					Goku.children[4].rotation.x = 0*Math.PI/180;    // AncoraBraccioDx
+					Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
+
+				}
+		}
+
+		function energiaSferaGenkidama(pivotGenkidama,ray,velocitaEnergia,numEnergie){
+
+			if(creaEnergia){
+				creaEnergia = false;
+				var dim = 1;
+				for(var i=0;i<numEnergie;i++){
+					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
+					var segnoX=1;
+					if(Math.random()<0.5){
+						segnoX=-1;
+					}
+					var segnoY=1;
+					if(Math.random()<0.5){
+						segnoY=-1;
+					}
+					var segnoZ=1;
+					if(Math.random()<0.5){
+						segnoZ=-1;
+					}
+					energia.position.set(segnoX*randomMultipl(velocitaEnergia)*4*ray,
+								 segnoY*randomMultipl(velocitaEnergia)*4*ray,
+								 segnoZ*randomMultipl(velocitaEnergia)*4*ray);
+					pivotGenkidama.add(energia);
+				}
+			}
+			else{
+				//sposto le energie
+				for(var i=0;i<numEnergie;i++){
+					if(pivotGenkidama.position.x< pivotGenkidama.children[i].position.x){
+						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x-velocitaEnergia;
+					}
+					else if(pivotGenkidama.position.x == Math.trunc(pivotGenkidama.children[i].position.x)){
+						pivotGenkidama.children[i].position.x=pivotGenkidama.position.x;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.x = pivotGenkidama.children[i].position.x+velocitaEnergia;
+					}
+					if(pivotGenkidama.position.y< pivotGenkidama.children[i].position.y ){
+						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y-velocitaEnergia;
+					}
+					else if(pivotGenkidama.position.y == Math.trunc(pivotGenkidama.children[i].position.y)){
+						pivotGenkidama.children[i].position.y=pivotGenkidama.position.y;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.y = pivotGenkidama.children[i].position.y+velocitaEnergia;
+					}
+					if(pivotGenkidama.position.z< pivotGenkidama.children[i].position.z ){
+						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z-velocitaEnergia;
+					}
+					else if(pivotGenkidama.position.z == Math.trunc(pivotGenkidama.children[i].position.z)){
+						pivotGenkidama.children[i].position.z=pivotGenkidama.position.z;
+						//non la modifico piu perche sono dove volevo arrivare
+					}else
+					{
+						pivotGenkidama.children[i].position.z =pivotGenkidama.children[i].position.z+velocitaEnergia;
+					}
+					if(pivotGenkidama.position.x == pivotGenkidama.children[i].position.x &&
+						pivotGenkidama.position.y == pivotGenkidama.children[i].position.y &&
+						pivotGenkidama.position.z == pivotGenkidama.children[i].position.z){
+							segnoX =1;
+							segnoY =1;
+							segnoZ =1;
+							if(Math.random()<0.5){
+								segnoX=-1;
+							}
+							var segnoY=1;
+							if(Math.random()<0.5){
+								segnoY=-1;
+							}
+							var segnoZ=1;
+							if(Math.random()<0.5){
+								segnoZ=-1;
+							}
+							pivotGenkidama.children[i].position.set(segnoX*randomMultipl(velocitaEnergia)*2*ray,
+																											segnoY*randomMultipl(velocitaEnergia)*2*ray,
+																											segnoZ*randomMultipl(velocitaEnergia)*2*ray);
+							}
+				}
+			}
+		}
+
+		function esplosioneCono(pivotIniziale,rayBase,velocitaEnergia,numEnergie){
+			//ricordarsi di mettere Crea energia a true nel codice da qualche parte prima di richiamare questa funzione
+			//velocitaEnergia e' un po diverso rispetto a quella di energiaSfera genkidama piu grande il valore e'
+			//piu lento il movimento e' velocitaEnergia numero intero da 1 a n
+			var lunghezzaCono = 200;
+			var puntoIniziale,nuovoPunto;
+			var segnoX,segnoY;
+			if(creaEnergia){
+				creaEnergia = false;
+				var dim = 1;
+				for(var i=0;i<numEnergie;i++){
+					var energia = creaQuadrilateroTrasparente(dim,dim,dim,0x00bfff,0.5);
+					energia.position.set(pivotIniziale.position.x,pivotIniziale.position.y,pivotIniziale.position.z);
+					pivotIniziale.add(energia);
+				}
+			}
+			else{
+				//sposto le energie a caso a formare un cono
+				for(var i=0;i<numEnergie;i++){
+					segnoX=1;
+					if(Math.random()<0.5){
+						segnoX=-1;
+					}
+					segnoY=1;
+					if(Math.random()<0.5){
+						segnoY=-1;
+					}
+					 if(creaPuntiFinali){
+					 	creaPuntiFinali = false;
+					 	for(var j=0;j<numEnergie;j++){
+					 		puntoFinale.push(new THREE.Vector3(Math.trunc(segnoX*Math.random()*rayBase*100)/100,
+					 																			Math.trunc(segnoY*Math.random()*rayBase*100)/100,
+					 																			pivotIniziale.position.z+lunghezzaCono));
+					 		}
+					 	}
+					 	puntoIniziale = new THREE.Vector3(pivotIniziale.children[i].position.x,
+					 																				pivotIniziale.children[i].position.y,
+					 																				pivotIniziale.children[i].position.z);
+						if(pivotIniziale.children[i].position.z>pivotIniziale.position.z-lunghezzaCono){
+					 	pivotIniziale.children[i].position.set(pivotIniziale.children[i].position.x-
+					 																				 Math.trunc((-puntoIniziale.x+puntoFinale[i].x)/velocitaEnergia),
+					 																				 pivotIniziale.children[i].position.y-
+					 														 						 Math.trunc((-puntoIniziale.y+puntoFinale[i].y)/velocitaEnergia),
+					 																				 pivotIniziale.children[i].position.z-
+					 														 						 Math.trunc((-puntoIniziale.z+puntoFinale[i].z)/velocitaEnergia*Math.trunc(Math.random()*10)));
+						}else{
+						pivotIniziale.children[i].position.set(pivotIniziale.position.x,
+																									 pivotIniziale.position.y,
+																									 pivotIniziale.position.z);
+					}
+					}
+				}
+			}
+
+		function randomMultipl(n){
+			// n<1 n>0
+			//ritorna un numero casuale multiplo di n compreso tra 0-1
+			var peso = n;
+			var numCas=Math.trunc(Math.random()*100)/100;
+			var value = 0;
+			while(value<numCas){
+				value+=peso;
+			}
+			return value;
+		}
+
+		function rendererClessidra(clessidra,classeCl){
+			//clessidra = oggetto 3D classeCl = classeclessidra
+			if(classeCl.inverso)//verso inverso
+			{
+				if(classeCl.count<1){
+			 for(var i=classeCl.startt;i>=classeCl.end;i--){
+				 if(classeCl.posIesimaY[i]<=classeCl.h/2){
+						 classeCl.p[i] -= (classeCl.lato*gap)/(classeCl.h*2*Math.PI);
+				 }
+				 else{
+						 classeCl.p[i]+=(classeCl.lato*gap)/(classeCl.h*2*Math.PI);
+				 }
+				 if(i == classeCl.startt) {
+					 classeCl.tempo[i] += angolo/(2.0*Math.PI);
+				 }else {
+					 classeCl.tempo[i] = Math.max(0.0, classeCl.tempo[i+1]-angolo/(2.0*Math.PI));
+				 }
+
+
+				 //spirale granelli inversa
+				 clessidra.children[3].children[i].position.set(Math.cos(classeCl.tempo[i])*(classeCl.lato/2-classeCl.p[i]),
+																												classeCl.posIesimaY[i]+6-(3*dimSabbia/2),
+																												Math.sin(classeCl.tempo[i])*(classeCl.lato/2-classeCl.p[i]));//-(i*60)
+				 classeCl.posIesimaY[i] -= gap/(2.0*Math.PI);
+
+				 //quando arrivo all'altezzaMassima devo ordinare i granelli nella griglia
+				 if(classeCl.posIesimaY[i]<=dimSabbia){
+					 classeCl.startt -= 1;//il primo granello non serve piu contarlo
+					 var x = classeCl.arrayPosizioni[i].x;
+					 var y = classeCl.arrayPosizioni[i].y;
+					 var z = classeCl.arrayPosizioni[i].z;
+					 clessidra.children[3].children[i].position.set(x,y,z);//dimSabbia
+					 if(classeCl.startt==-1){//abilito dritto
+						 classeCl.inverso=false;
+						 classeCl.startt= classeCl.arrayPosizioni.length-1;
+						 classeCl.end = classeCl.arrayPosizioni.length-1;
+					 }
+				 }
+				 classeCl.count +=1;
+				 }
+			 }else{
+				 if(classeCl.end>0){
+				 classeCl.end -=1;}
+				 classeCl.count =0;
+			 }
+			}
+			else//verso dritto
+			{
+			 if(classeCl.count<1){
+			 for(var i=classeCl.startt;i>=classeCl.end;i--){
+				 if(classeCl.posIesimaY[i]<=classeCl.h/2){
+						 classeCl.p[i] += (classeCl.lato*gap)/(classeCl.h*2*Math.PI);
+				 }
+				 else{
+						 classeCl.p[i]-=(classeCl.lato*gap)/(classeCl.h*2*Math.PI);
+						 }
+				 if(i == classeCl.startt) {
+					 classeCl.tempo[i] += angolo/(2.0*Math.PI);
+				 }else {
+					 classeCl.tempo[i] = Math.max(0.0, classeCl.tempo[i+1]-angolo/(2.0*Math.PI));
+				 }
+
+				 //spirale granelli
+				 clessidra.children[3].children[i].position.set(Math.cos(classeCl.tempo[i])*(classeCl.lato/2-classeCl.p[i]),
+																												classeCl.posIesimaY[i]+6-(3*dimSabbia/2),
+																												Math.sin(classeCl.tempo[i])*(classeCl.lato/2-classeCl.p[i]));
+				 classeCl.posIesimaY[i] += gap/(2.0*Math.PI);
+
+				 //quando arrivo all'altezzaMassima devo orginare i granelli
+				 if(classeCl.posIesimaY[i]>=classeCl.h-dimSabbia){
+					 classeCl.startt -= 1;//il primo granello non serve piu contarlo
+					 var x = classeCl.arrayPosizioni[i].x;
+					 var y = classeCl.arrayPosizioni[i].y-dimSabbia;
+					 var z = classeCl.arrayPosizioni[i].z;
+					 clessidra.children[3].children[i].position.set(x,classeCl.h+y-2*dimSabbia,z);//dimSabbia
+					 if(classeCl.startt==-1){//abilito l'inverso
+						 classeCl.inverso=true;
+						 classeCl.startt= classeCl.arrayPosizioni.length-1;
+						 classeCl.end = classeCl.arrayPosizioni.length-1;
+					 }
+				 }
+				 classeCl.count +=1;
+				 }
+			 }else{
+				 if(classeCl.end>0){
+				 classeCl.end -=1;}
+				 classeCl.count =0;
+			 }
+		 }
+		}
+
+		function Update() {
+				requestAnimationFrame( Update );
+				controls.update();
+				stats.update();
+				Render();
+			}
+
+		function Render() {
+			rendererClessidra(ClessidraSx,classeClessidraSx);
+			rendererClessidra(ClessidraDx,classeClessidraDx);
+			animazioneCombattimento();
+
+			renderer.render(scene, camera);
+		}
+
+		Start();
+		Update();
+
+	</script>
+</body>
+</html>
