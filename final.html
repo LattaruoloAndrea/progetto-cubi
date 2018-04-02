@@ -76,10 +76,7 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.setClearColor( 0xf0f0f0 );
 		document.body.appendChild( renderer.domElement );
-		camera.position.set(850,200*10,350);
-		//camera.rotation.set(0,Math.PI*90/180,Math.PI*90/180);
-		camera.lookAt( new THREE.Vector3(1000,1000,1000));
-
+		camera.position.set(120,50,0);
 		// Costruzione terreno
 		var geometry = new THREE.PlaneGeometry(10000,10000);
 		var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
@@ -92,7 +89,7 @@
 		// LUCI
 		var amLight = new THREE.AmbientLight(0xffffff, 1);
 		StanzaSpiritoDelTempo.rotation.set(0,Math.PI*90/180,0);
-		StanzaSpiritoDelTempo.position.set(700,130*15,350);//(500,130,250);
+		//StanzaSpiritoDelTempo.position.set(700,130*15,350);//(500,130,250);
 		scene.add( StanzaSpiritoDelTempo, amLight);
 
 		stats = new Stats();
@@ -114,10 +111,11 @@
 			//get height data from img
 			var data = getHeightData(img);
 			terreno =createTerrain(15,15,15,data,"textures/11635.jpg");
+			terreno.position.set(-700,-200*10+97,-400);
 			scene.add(terreno);
 		}
 		// load img source
-		//img.src = "textures/heightmap2.png";
+		img.src = "textures/heightmap2.png";
 	}
 
 		function creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo){
