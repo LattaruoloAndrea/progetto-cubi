@@ -76,15 +76,14 @@
 		renderer.setSize( window.innerWidth, window.innerHeight );
 		renderer.setClearColor( 0xf0f0f0 );
 		document.body.appendChild( renderer.domElement );
-<<<<<<< HEAD
+
 		camera.position.set(850,2300,500);
 		camera.rotation.set(0,45*Math.PI/180,0);
 		//camera.rotation.set(0,Math.PI*90/180,Math.PI*90/180);
 		//camera.lookAt( new THREE.Vector3(1000,1000,1000));
 
-=======
 		camera.position.set(150,50,0);
->>>>>>> e41e1bd66c5cd086019ad39a04621a9ff2333be2
+
 		// Costruzione terreno
 		var geometry = new THREE.PlaneGeometry(10000,10000);
 		var material = new THREE.MeshBasicMaterial( { color: 0xdddddd } );
@@ -118,8 +117,10 @@
 
 			//get height data from img
 			var data = getHeightData(img);
-			terreno =createTerrain(15,15,15,data,"textures/11635.jpg");
-			terreno.position.set(-700,-200*10+97,-400);
+			// terreno =createTerrain(15,15,15,data,"textures/11635.jpg");
+			// terreno.position.set(-700,-200*10+97,-400);
+			terreno =createTerrain(10,10,10,data,"textures/11635.jpg");
+			terreno.position.set(-490,-127*10,-280);
 			scene.add(terreno);
 		}
 		// load img source
@@ -223,6 +224,7 @@
 			var positionZ = 0;
 			var lato = Math.ceil(Math.sqrt(arrayAltezze.length));
 			var texture = new THREE.TextureLoader().load( image);
+			// Parametri geometria: materiale e colore
 			if(image==undefined){
 					material = new THREE.MeshLambertMaterial({color:0Xa0522d});
 					//colre marroncino
@@ -230,9 +232,10 @@
 			else{
 				material = new THREE.MeshLambertMaterial({map:texture});
 			}
-			for(var i=0;i<arrayAltezze.length;i++){//
-			texture.repeat.set(1,1);
-				var cubeGeometry = new THREE.BoxBufferGeometry(larghezza,arrayAltezze[i]*altezza,profondita);
+			var cubeGeometry = new THREE.BoxBufferGeometry(larghezza,altezza,profondita);
+
+			for(var i=0;i<arrayAltezze.length;i++){
+
 				var cube = new THREE.Mesh(cubeGeometry,material);
 				cube.castShadow = true;
 				cube.receiveShadow = true;
@@ -250,6 +253,7 @@
 						positionZ = 0;
 					}
 				}
+				cube.scale.y = arrayAltezze[i];
 			}
 			pivotTerreno.position.set(-lato/2,0,-lato/2);
 			return pivotTerreno;
@@ -634,7 +638,7 @@
 			var numAlberi = 20;
 			var positionX1 = -200;
 			var positionX2 = 0;
-			var positionZ = -200;
+			var positionZ = -185;
 
 			for(var i = 0; i < numAlberi; i++ ){
 				var albero = creaAlbero(mull, dimensioneTronco, dimensioneFogliame);
@@ -857,14 +861,14 @@
 			var grow = crescitaFinalFlash;
 			var crescitaSfere = 0.1;
 			var maxLatoF = 12;
-			var TempoCombattimentoPugni = 900;
+			var TempoCombattimentoPugni = 540;
 
 
 			if (statoCombattimento == -1){
 				tempoF = tempoF + secondo;
 
 				tempoCombattimento = tempoCombattimento + secondo;
-				if( tempoF > 100 ){
+				if( tempoF > 60 ){
 					statoCombattimento = 0;
 			}}
 
@@ -1030,14 +1034,15 @@
 							//un intero maggire per velocita dimisnuisce la velocita
 							}
 					} else {
-						Vegeta.remove(Vegeta.children[6])
+						Vegeta.remove(Vegeta.children[6]);
 						statoCombattimento = 7;
 					}
 				}
 
 				if(statoCombattimento == 7){
+					arena.remove(Vegeta);
 					sferaGenkidama.children[0].remove(sferaG);
-					Goku.position.set(-3,18,0);
+					Goku.position.set(-10,-80,0);
 					Goku.rotation.set(0*Math.PI/180,0,0);
 					Goku.children[4].rotation.x = 0*Math.PI/180;    // AncoraBraccioDx
 					Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
