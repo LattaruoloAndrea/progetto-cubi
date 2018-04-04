@@ -52,9 +52,9 @@
   Aggiunta le animazioni ai personaggi. Goku e Vegeta simulano un combattimento per un tot di tempo dopo Goku si distanzia e
   scaglia la sfera di energia verso Vegeta
    ### Problemi
-  
+  problemi riscontrati nello spostamento ed allontanamento dei due, poichè non si trovava una condizione per fermare il loro allotnaamento 
   ### Soluzioni
-
+  abbiamo optato per porre come condizione la distanza di vegeta rispetto all'asse x e z, mantenendo il fatto che Vegeta non                           andasse sotto il terreno con il valore y.
 ## Day 6
   Aggiunta l'animazione alla sfera genkidama si ingrandisce ed "assorbe" energia dello spazio circostante, aggiunta l'animazione 
   del final flesh di Vegeta. L'animazione si svolge in modo tale che la sfera e il raggio si scontrino, ma poi la sfera contionua
