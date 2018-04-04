@@ -77,5 +77,5 @@ Le sfere una volta arrivate nel centro vengono spostate in una posizione esterna
 - ##### Animazione disgregamento sfera Genkidama
 In seguito alla caduta della sfera verso Vegeta, abbiamo simulato la sua disgregazione partendo dal centro del corpo di Vegeta in direzione dell'asse z di quest'ultimo, dando idea del colpo che trapassa il suo corpo. Per fare questo abbiamo usato la funzione esplosioneCono, la quale creati un numero fissato di piccoli cubi li sposta idealmente dentro un Cono molto velocemente. Alcuni problemi sono sorti nell'eliminazione di questi piccoli cubi una volta terminata l'animazione. La soluzione è stata sfruttare il paramentro children per trovare l'elemento pivotCono che faceva parte dell'oggetto Vegeta ed eliminarlo tramite un for.
 
-- Animazione final flash
+- ##### Animazione final flash
 Il final flash è stato fatto tramite l únione di due cubi che vengono trasformati in un raggio energetico tramite uno scale solo sull'asse y, il quale simula l'allungarsi del raggio
