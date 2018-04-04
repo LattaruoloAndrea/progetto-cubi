@@ -1,21 +1,48 @@
-# Inizio progetto
-Creazione della stanza dello spirito e del tempo
 
-##interazioni
--La creazione della Stanza dello spirito e del tempo è partita dalla costruzione del basamento a T sulla quale sono stati posti in successioni gli oggetti quali le clessidre, i palloncini, la stanza e la cupola sovrastante
-### costruzione generale
-La costruzione generale di ogni oggetto della scena parte dalle due funzioni base creaQuadrilatero e creaQuadrilateroTrasparente, le quali creano semplici cubi in base alle dimensioni che ricevono, il loro colore e le loro eventuali texture. Le due si dinstinuongo nella creazione o meno di cubi trasparenti, passando il valore di opacità da porre nel Material dei cubi.
-#### costruzione clessidre
--Le clessidre sono un insieme di cubi che formano rispettivamento la base, la parte superiore e la parte di vetro, creata tramite l'unione di due identici blocchi di vetro, di cui uno ruotato di 180 gradi rispetto all'asse x. Lo stesso meccanismo è stato adottato anche per la costruzione della parte superiore della  clessidra e del basamento dei palloncini. Inizialmente la scelta del colore era ricaduta sull'uso di una texture Oro, poi rimossa per questione di calcolo computazionale. La costruzione della clessidra si basa su queste funzioni:
--costruzioneClessidra, che riceve i parametri pivotClessidra, che permette lo spostamento dell'intera clessidra; altezzaCl, ovvero l'altezza della parte di vetro della clessidra; mul, utilizzato in tutti i successivi parametri per poter scalare la clessidra in basse alle esigenze; colSabbia, il colore della sabbia; clessClass   
--creaBaseClessidra, che riceve il solo pramentro m, cioè la mul precedente, e crea le due basi da porre sopra e sotto la zona di vetro.
--creaVetroClessidra, che riceve il solo paramentro mul e crea tutta la parte centrale di vetro della clessidra, facendo uso anche della funzione metaVetroClessidra, la quale restituisce una metà del vetro della clessidra, che si compone di due identiche metà, una ribaltata di 180 gradi sul suo asse x ed entrambe poi poste tra un piccolo cubo posto al centro che completa il vetro della clessidra.
-#### animazione clessidre
--in un file a parte mi sono crato la clessidra e ci ho lavorato sopra
--se muovo la clessidra nel file non ho problemi (file spostamentoSabbia.html)
--problema non riesco a visualizzare il cambiamento della sabbia all'interno delle clessidre nella scena finale
-giorno # finalmente siamo riusciti a caricare le clessidre con l'animazione. Molti problemi sono stati riscontrati soprattutto il fatto di aver lavorato in un file separato e poi aver dovuto caricare la clessidra con l'animazione in un'altro file.
-Alla fine una pulizia del codice è stata necessaria per rendere più chiaro cosa bisognasse fare.
-Dopo la pulizia comunque quando provavo ad aggiungere una clessidra in piu e fare l animazione su entrame le clessidre una sorta di bug grafico usciva perche le due clessidre condividevano una variabile ("count" inizialmente pensata per ridurre ed aumentare la velocita della serpentina nella clessidra) dopo che la variabile count e stata legata ad ogni clessidra ogni problema è stato risolto.
-Il merging dei due file dopo la pulizia di quello singolo non è stato troppo complicato  un copia incolla un po generale e il risultato andava.
-#### costruzione palloncini
+# Journal
+
+## Day 1
+  Creazione terreno stanza(sono i due blocchi bianchi "tipo marmo" che fanno da basamento alla stanza), con relative textures e
+  costruzione clessidre. Sia il terreno della stanza che le clessidre possono essere ingrandite tramite un parametro di scalatura.
+  ## Problemi
+  Ci serviva un parametro per scalare gli oggetti e fare in modo che gli oggetti potessero essere scalati o meglio creati delle
+  dimenzioni necessarie.
+  ## Soluzioni
+  Per risolvere il problema della scalatura abbiamo aggiunto un parametro m di scalatura tale che modificando solo quel parametro
+  era possibile ingrandire o rimpicciolire gli oggetti senza ridimensionare ogni singolo oggetto.
+
+## Day 2
+  Sono stati  aggiunti tutti le componenti "statiche" della scene come le pareti della stanza, le due clessidre, i due pilastri
+  con sopra i palloncini. Sono state aggiunte molte texture ad ogni elemento fin'ora creato (queste texture poi sono state tolte
+  perchè diventava troppo pesante caricare il file).
+  In contemporanea è stata sviluppata la prima parte animata della scena, l'animazione delle clessidre.
+  ## Problemi
+  Per l'animazione delle clessidre abbiamo optato non ad un semplice scorrimento verticale della sabbia come avviene nelle 
+  clessidre normali ma ad uno scorrimento a spirale (lo scorrimento avviene in maniera opposta tra le due clessidre).Il primo
+  problema è stato cercare di calcolare una funzione per lo spostamento a spirale.
+  ## Soluzioni
+  Per lo spostamento a spirale abbiamo deciso di partire da un movimento circolare, pian piano ridurre il raggio della 
+  circonferenza su cui la sabbia si sposta e contemporaneamente far salire (o scendere) la sabbia in modo tale che raggiunga 
+  il basamento opposto.
+
+## Day 3
+  Miglioramento clessidre, e aggiunta clessidre con l'animazione al progetto.
+  ## Problemi
+  Abbiamo riscontrato diversi problemi con le clessidre: la spirale non era centrata perfettamente con il centro della clessidra, 
+  il numero di granelli di sabbia era troppo elevato all'inizio e quindi la renderizzazione della scena era pesante (FPS bassi) ed 
+  infine quando abbiamo aggiunto la clessidra migliorata al progetto non veniva mostrata l'animazione
+  ## Soluzioni
+  Il problema della spirale era dovuto ad un problema di pivot risolto quello la spirale era perfettamente centrata. Abbiamo
+  dovuto ridurre il numero di granelli di sabbia ed aumentarne le dimensioni per un compromeso tra "riempimento" della 
+  clessidra, buone prestazioni e che mostri una spirale più o meno corretta. Poi è stato necessario fare un refactoring di tutto 
+  il codice delle clessidre per creare delle funzioni che potessero essere richiamate per la costruizone delle clessidre e
+  l'animazione
+
+## Day 4
+  Aggiustatamento posizione finale della sabbia, aggiunta personaggi "Goku" e "Vegeta" la descrizione dettagliata è stata 
+  inserita nel ReadMe.md
+  ## Problemi
+  La sabbia una volta che raggiungeva una certa altezza bisognava farla ritornare nello stadio di partenza (come cquando si usa una clessidra).
+  ## Soluzioni
+   Per aggiustare la posizione della sabbia abbiamo usato un vettore che contenesse le posizioni x,z iniziali dei granelli (che
+   non vengono modificati) e poi andare a modificare la posizione y in base su quale basamento si vuole "appogiare" la sabbia
