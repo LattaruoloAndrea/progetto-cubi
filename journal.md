@@ -57,7 +57,7 @@
   abbiamo optato per porre come condizione la distanza di vegeta rispetto all'asse x e z, mantenendo il fatto che Vegeta non                           andasse sotto il terreno con il valore y.
 ## Day 6
   Aggiunta l'animazione alla sfera genkidama si ingrandisce ed "assorbe" energia dello spazio circostante, aggiunta l'animazione 
-  del final flesh di Vegeta. L'animazione si svolge in modo tale che la sfera e il raggio si scontrino, ma poi la sfera contionua
+  del final flesh di Vegeta. L'animazione si svolge in modo tale che la sfera e il raggio si scontrino, ma poi la sfera continua
   il suo avanzamento verso Vegeta
   ### Problemi
   IL primo problema riscontrato è stato che la sfera Genkidama quando assorbiva le sferette esse all'inizio avevano l'effetto 
@@ -65,9 +65,13 @@
   unica direzione (verso l'alto divergenti dal centro della sfera).
   Il secondo problema era fare in modo che il final flash (raggio giallo) e la sfera genkidama(cubo blu) si scontrassero e non 
   si intersecassero a vicenda.
+ Il terzo problema è sorto nell'eliminazione dei piccoli cubi che si aggregavano alla sfera Genkidama una volta terminata 
+ l'animazione. 
   ### Soluzioni
   Il primo problema è stato risolto utilizzando un pivot fittizio attaccato al centro della sfera, il secondo è stato risolto
-  mediante calcoli in base alla distanza della meta del final flash e la meta della sfera genkidama
+  mediante calcoli in base alla distanza della meta del final flash e la meta della sfera genkidama.
+  Per il terzo, la soluzione è stata sfruttare il paramentro children per trovare l'elemento pivotCono che faceva parte 
+  dell'oggetto Vegeta ed eliminarlo tramite un for.
 
 ## Day 7
   Abbiamo aggiunto il terreno, su cui siamo andati a posizionare la camera, è stata aggiunta l'animazione del colpo subito da
