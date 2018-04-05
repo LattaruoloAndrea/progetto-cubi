@@ -77,4 +77,6 @@
   ### Soluzioni
   Su consiglio esterno abbiamo creato il terreno mettendo il materiale e la costruione di un pixel (cubo) del terreno fuori dal
   ciclo for che effettivamente costruiva il terreno, e poi abbiamo ingrandito i cubi usufruendo di una scalatura.
-  (abbiamo guadagnato una decina di FPS, comunque non riusciamo ad raggiungere i 30 FPS)
+  (abbiamo guadagnato una decina di FPS, comunque non riusciamo ad raggiungere i 30 FPS).
+  E' stato necessario spostare la riga di codice "img.src = "textures/heightmap2.png";" fuori dalla procedura img.onload = 
+  function() perchè sennò non era possibile caricare il terreno.
