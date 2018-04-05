@@ -134,12 +134,12 @@
 				var data = getHeightData(img);
 				// terreno =createTerrain(15,15,15,data,"textures/11635.jpg");
 				// terreno.position.set(-700,-200*10+97,-400);
-				terreno =createTerrain(10,10,10,data,"textures/11635.jpg");
+				terreno =createTerrain(10,10,10,data,"textures/T.jpg");
 				terreno.position.set(-490,-127*10,-280);
 				scene.add(terreno);
 			}
 			// load img source
-			img.src = "textures/heightmap2.png";
+				img.src = "textures/heightmap2.png";
 		}
 
 		function creaStanzaDelloSpiritoedelTempo(StanzaSpiritoDelTempo){
@@ -1047,9 +1047,12 @@
 											esplosioneCono(pivotCono,200,30,numEnerr);
 											//pivot,raggioCono,velocita,numeroEnergie
 											//un intero maggire per velocita dimisnuisce la velocita
+											if(latoGenkidama <= 20){
+												arena.remove(Vegeta);
+											}
 										}
 									} else {
-										Vegeta.remove(Vegeta.children[6]);
+
 										statoCombattimento = 7;
 									}
 								}
@@ -1057,7 +1060,7 @@
 								if(statoCombattimento == 7){
 									arena.remove(Vegeta);
 									sferaGenkidama.children[0].remove(sferaG);
-									Goku.position.set(-10,-80,0);
+									arena.position.set(90,-10,50);
 									Goku.rotation.set(0*Math.PI/180,0,0);
 									Goku.children[4].rotation.x = 0*Math.PI/180;    // AncoraBraccioDx
 									Goku.children[5].rotation.x = 0*Math.PI/180;    // AncoraBraccioSx
