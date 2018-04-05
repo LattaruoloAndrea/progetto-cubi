@@ -12,6 +12,8 @@ Le clessidre sono un insieme di cubi che formano rispettivamento la base, la par
 - creaBaseClessidra, che riceve il solo pramentro m, cioè la mul precedente, e crea le due basi da porre sopra e sotto la zona di vetro.
 - creaVetroClessidra, che riceve il solo paramentro mul e crea tutta la parte centrale di vetro della clessidra, facendo uso anche della funzione metaVetroClessidra, la quale restituisce una metà del vetro della clessidra, che si compone di due identiche metà, una ribaltata di 180 gradi sul suo asse x ed entrambe poi poste tra un piccolo cubo posto al centro che completa il vetro della clessidra.
 
+[Clessidra](https://ibb.co/dDL96c)
+
 #### Terreno
 Il terreno è stato costruito partendo dal codice fornito. E' stata aggiunta una procedura creazione terreno che dato l 'array delle altezze crea delle colonne che formano il terreno.
 L altezza delle colonne corrisponde al colore dell'immagine in scala di grigi fornita.
