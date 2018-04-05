@@ -1,6 +1,6 @@
 # Inizio progetto
 Il progetto definitivo prevede la costruzione della stanza dello spirito e del tempo, con un'animazione di combattimento tra Goku e Vegeta, con sullo sfondo l'animazione delle clessidre a scandire il tempo.
-N.B. : L'animazione generale può essere bloccata e ripresa a proprio piacimento premendo la spaceBar.
+###### N.B. : L'animazione generale può essere bloccata e ripresa a proprio piacimento premendo la spaceBar.
 
 <a href="https://ibb.co/mRT7sH"><img src="https://preview.ibb.co/kusYXH/Screenshot_3.png" alt="Screenshot 3" border="0" /></a>
 
