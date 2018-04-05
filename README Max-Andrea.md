@@ -4,7 +4,7 @@ Il progetto definitivo prevede la costruzione della stanza dello spirito e del t
 
 <a href="https://ibb.co/mRT7sH"><img src="https://preview.ibb.co/kusYXH/Screenshot_3.png" alt="Screenshot 3" border="0" /></a>
 
-## costruzione generale
+## Costruzione generale
 La creazione della Stanza dello spirito e del tempo è partita dalla costruzione del basamento a T sulla quale sono stati posti in successione gli oggetti quali le clessidre, i palloncini, la stanza e la cupola sovrastante, con ulteriori dettagli. Successivamente ci siamo dedicati ai personaggi, alle loro animazioni e al loro combattimento.
 La costruzione generale di ogni oggetto della scena parte dalle due funzioni base creaQuadrilatero e creaQuadrilateroTrasparente, le quali creano semplici cubi in base alle dimensioni che ricevono, il loro colore e le loro eventuali texture. Le due si dinstinuongo nella creazione o meno di cubi trasparenti, passando il valore di opacità da porre nel Material dei cubi.
 
@@ -94,4 +94,4 @@ In seguito alla caduta della sfera verso Vegeta, abbiamo simulato la sua disgreg
 <a href="https://ibb.co/b4mrKx"><img src="https://preview.ibb.co/nF4dzx/Screenshot_8.png" alt="Screenshot 8" border="0" /></a>
 
 - ##### Animazione final flash
-Il final flash è stato fatto tramite l'unione di due cubi che vengono trasformati in un raggio energetico tramite uno scale solo sull'asse y, il quale simula l'allungarsi del raggio
+Il final flash è stato fatto tramite l'unione di due cubi che vengono trasformati in un raggio energetico tramite uno scale solo sull'asse y, il quale simula l'allungarsi del raggio.
