@@ -1,6 +1,8 @@
 # Inizio progetto
 Il progetto definitivo prevede la costruzione della stanza dello spirito e del tempo, con un'animazione di combattimento tra Goku e Vegeta, con sullo sfondo l'animazione delle clessidre a scandire il tempo.
 
+<a href="https://ibb.co/mRT7sH"><img src="https://preview.ibb.co/kusYXH/Screenshot_3.png" alt="Screenshot 3" border="0" /></a>
+
 ## costruzione generale
 La creazione della Stanza dello spirito e del tempo è partita dalla costruzione del basamento a T sulla quale sono stati posti in successioni gli oggetti quali le clessidre, i palloncini, la stanza e la cupola sovrastante, con ulteriori dettagli. Successivamente ci siamo dedicati ai personaggi, alle loro animazioni e al loro combattimento.
 La costruzione generale di ogni oggetto della scena parte dalle due funzioni base creaQuadrilatero e creaQuadrilateroTrasparente, le quali creano semplici cubi in base alle dimensioni che ricevono, il loro colore e le loro eventuali texture. Le due si dinstinuongo nella creazione o meno di cubi trasparenti, passando il valore di opacità da porre nel Material dei cubi.
@@ -12,7 +14,7 @@ Le clessidre sono un insieme di cubi che formano rispettivamento la base, la par
 - creaBaseClessidra, che riceve il solo pramentro m, cioè la mul precedente, e crea le due basi da porre sopra e sotto la zona di vetro.
 - creaVetroClessidra, che riceve il solo paramentro mul e crea tutta la parte centrale di vetro della clessidra, facendo uso anche della funzione metaVetroClessidra, la quale restituisce una metà del vetro della clessidra, che si compone di due identiche metà, una ribaltata di 180 gradi sul suo asse x ed entrambe poi poste tra un piccolo cubo posto al centro che completa il vetro della clessidra.
 
-[Clessidra](<a href="https://ibb.co/dDL96c"><img src="https://preview.ibb.co/jcQbmc/photo_2018_04_05_10_36_10.jpg" alt="photo 2018 04 05 10 36 10" border="0" /></a>)
+<a href="https://ibb.co/dDL96c"><img src="https://preview.ibb.co/jcQbmc/photo_2018_04_05_10_36_10.jpg" alt="photo 2018 04 05 10 36 10" border="0" /></a>
 
 #### Terreno
 Il terreno è stato costruito partendo dal codice fornito. E' stata aggiunta una procedura creazione terreno che dato l 'array delle altezze crea delle colonne che formano il terreno.
@@ -26,6 +28,8 @@ I pallocini sono un insieme di cubi le cui dimensioni man mano vanno a crescere 
 - creaAstaPalloncino, che costruisce l'asta su cui poggia il palloncino
 - creaBasePalloncino che costruisce le due basi poste sopra e sotto l'asta , di colore oro.
 
+<a href="https://ibb.co/dn65ex"><img src="https://preview.ibb.co/dYPrKx/photo_2018_04_05_10_36_16.jpg" alt="photo 2018 04 05 10 36 16" border="0" /></a>
+
 #### Stanza
 La costruzione della stanza è partita dall'unione della parte di superficie circolare sottostante e la cupola sovrastante. Per la costruzione della stanza abbiamo fatto uso delle funzioni:
 - costruzioneSuperficie, la quale crea la superficie circolare con piccolissimi cubi molto alti posti tramite una position con seno e coseno per un certo angolo a nostro piacimento ( nel nostro caso 210 gradi totali). Successivamente, con analogo metodo, ma per tutta la dimensione del cerchio (360 gradi), è stato costruito un piccolo bordo sopra la superficie, dove poi va a poggiare la Cupola.
@@ -33,13 +37,19 @@ La costruzione della stanza è partita dall'unione della parte di superficie cir
 - costruzioneCamera, che csotruisce le due camere laterali alla stanza circolare, facendo uso di un cubo
 - costruzioneTetto, infine, costruisce il tetto sovrastante le due camere.
 
+<a href="https://ibb.co/f28wmc"><img src="https://preview.ibb.co/hhRSsH/photo_2018_04_05_10_36_08.jpg" alt="photo 2018 04 05 10 36 08" border="0" /></a>
+
 #### Personaggi
  I personaggi sono stati costruiti con la funzione creaPersonaggio, che riceve le texture da porre sul corpo, sulle braccia e sulle gambe e crea una persona con vari cubi che vanno a formare rispettivamente le due braccia, le due gambe, il viso, i capelli, gli occhi e la bocca e il corpo. le rotazioni delle braccia sono state fatte tramite un pivot di ancoraggio posto in posizione iniziale del braccio. Per una migliore struttura abbiamo deciso di sistemare tutti i cubi che vanno a formare il personaggio tramire una funzione separata chiamata posizionamento, che pone i cubi nelle giuste posizioni a formare il personaggio.
+
+<a href="https://ibb.co/iAPDXH"><img src="https://preview.ibb.co/nmSBKx/photo_2018_04_05_10_36_14.jpg" alt="photo 2018 04 05 10 36 14" border="0" /></a>
 
 #### Foresta
 La foresta è stata costrutita tramite la funzione creaForesta, la quale, in base ad un numero fissato, pone tanti alberi quanto il valore del numero all'interno della scena, facendo uso della Funzione
 - creaAlbero, la quale tramite un cubo crea il tronco e per la parte superiore dell'albero fa uso della funzione
 - creaFogliame, la quale tramite un for pone cubi di colore verde uno sopra l'altro che man mano vanno a ridursi.
+
+<a href="https://ibb.co/gUKQex"><img src="https://preview.ibb.co/dtGSsH/photo_2018_04_05_10_36_12.jpg" alt="photo 2018 04 05 10 36 12" border="0" /></a>
 
 ### Animazioni
 #### animazione clessidre
