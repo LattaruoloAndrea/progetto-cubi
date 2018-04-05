@@ -78,6 +78,8 @@ Le animazioni interne al combattimento sono le seguenti:
 - ##### Animazione Pugni
 L'animazione dei pugni è stata fatta tramite la funzione animazioneBracciaPersonaggio, la quale contemporaneamente sposta le braccia sull'asse z e ruota l'ancoraggio delle braccia di un angolazione random.
 
+<a href="https://ibb.co/ehsyzx"><img src="https://preview.ibb.co/gt2LCH/Screenshot_4.png" alt="Screenshot 4" border="0" /></a>
+
 - ##### Animazione Teletrasporto
 L'animazione del teletrasporto è stata fatta tramite lo spostamento randomico di un pivot chiamato arena, il quale contiene entrambi ii personaggi dello scontro: questo simula il loro spostamento rapidissimo e pertanto il teletrasporto.
 
@@ -86,8 +88,16 @@ L'animazione del teletrasporto è stata fatta tramite lo spostamento randomico d
 Abbiamo riprodotto la sfera genkidama che pian piano si ingrandisce (attraverso uno scale), per renderla simile a quella reale abbiamo fatto in modo da far veicolare delle mini sfere di energia verso il centro della sfera.
 Le sfere una volta arrivate nel centro vengono spostate in una posizione esterna (al posto di eliminare ogni sfera e crearne una nuova). Alla fine dell' "ingrandimento" della sfera genkidama queste sfere di energia vengono rimosso dalla scena.
 
+<a href="https://ibb.co/e15kex"><img src="https://preview.ibb.co/iOQU6c/Screenshot_5.png" alt="Screenshot 5" border="0" /></a>
+
+<a href="https://ibb.co/ewXbmc"><img src="https://preview.ibb.co/eg6fCH/Screenshot_6.png" alt="Screenshot 6" border="0" /></a>
+
+<a href="https://ibb.co/nBC96c"><img src="https://preview.ibb.co/jUAwmc/Screenshot_7.png" alt="Screenshot 7" border="0" /></a>
+
 - ##### Animazione disgregamento sfera Genkidama
 In seguito alla caduta della sfera verso Vegeta, abbiamo simulato la sua disgregazione partendo dal centro del corpo di Vegeta in direzione dell'asse z di quest'ultimo, dando idea del colpo che trapassa il suo corpo. Per fare questo abbiamo usato la funzione esplosioneCono, la quale creati un numero fissato di piccoli cubi li sposta idealmente dentro un Cono molto velocemente. Alcuni problemi sono sorti nell'eliminazione di questi piccoli cubi una volta terminata l'animazione. La soluzione è stata sfruttare il paramentro children per trovare l'elemento pivotCono che faceva parte dell'oggetto Vegeta ed eliminarlo tramite un for.
+
+<a href="https://ibb.co/b4mrKx"><img src="https://preview.ibb.co/nF4dzx/Screenshot_8.png" alt="Screenshot 8" border="0" /></a>
 
 - ##### Animazione final flash
 Il final flash è stato fatto tramite l únione di due cubi che vengono trasformati in un raggio energetico tramite uno scale solo sull'asse y, il quale simula l'allungarsi del raggio
